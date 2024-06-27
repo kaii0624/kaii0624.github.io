@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>画像スライドパズル</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/17.0.2/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes moveLeftRight {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            50% { transform: translateX(calc(100vw - 80px - 4rem)) rotate(720deg); }
+        }
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        .puzzle-tile {
+            transition: all 0.3s ease;
+            background-size: cover;
+            background-position: center;
+        }
+        .puzzle-tile:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+        .moving-circle-container {
+            position: fixed;
+            top: -70px;
+            left: -2rem;
+            right: -2rem;
+            height: 80px;
+            overflow: hidden;
+        }
+        .moving-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            position: absolute;
+            left: 2rem;
+            animation: moveLeftRight 10s linear infinite;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-r from-blue-200 via-indigo-200 to-purple-200 min-h-screen flex items-center justify-center py-12">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const App = () => {
+            const [size, setSize] = React.useState(null);
+            const [puzzle, setPuzzle] = React.useState([]);
+            const [moves, setMoves] = React.useState(0);
+            const [image, setImage] = React.useState(null);
+            const [circleImage, setCircleImage] = React.useState(null);
+
+            const createPuzzle = (size) => {
+                const numbers = Array.from({length: size * size}, (_, i) => i);
+                return numbers.sort(() => Math.random() - 0.5);
+            };
+
+            const handleSizeSelect = (selectedSize) => {
+                setSize(selectedSize);
+                setPuzzle(createPuzzle(selectedSize));
+                setMoves(0);
+            };
+
+            const handleImageUpload = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const size = Math.min(img.width, img.height);
+                        canvas.width = canvas.height = size;
+                        ctx.drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, size, size);
+                        setImage(canvas.toDataURL());
+
+                        // Create circular image
+                        const circleCanvas = document.createElement('canvas');
+                        const circleCtx = circleCanvas.getContext('2d');
+                        circleCanvas.width = circleCanvas.height = 80;
+                        circleCtx.beginPath();
+                        circleCtx.arc(40, 40, 40, 0, Math.PI * 2, true);
+                        circleCtx.closePath();
+                        circleCtx.clip();
+                        circleCtx.drawImage(canvas, 0, 0, size, size, 0, 0, 80, 80);
+                        setCircleImage(circleCanvas.toDataURL());
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            };
+
+            const handleTileClick = (index) => {
+                const newPuzzle = [...puzzle];
+                const emptyIndex = newPuzzle.indexOf(size * size - 1);
+                const rowSize = size;
+
+                if (
+                    (index === emptyIndex - 1 && index % rowSize !== rowSize - 1) ||
+                    (index === emptyIndex + 1 && index % rowSize !== 0) ||
+                    index === emptyIndex - rowSize ||
+                    index === emptyIndex + rowSize
+                ) {
+                    [newPuzzle[index], newPuzzle[emptyIndex]] = [newPuzzle[emptyIndex], newPuzzle[index]];
+                    setPuzzle(newPuzzle);
+                    setMoves(moves + 1);
+                }
+            };
+
+            const isCompleted = () => {
+                return puzzle.every((num, index) => num === index);
+            };
+
+            return (
+                <div className="text-center p-8 bg-white bg-opacity-80 rounded-lg shadow-2xl max-w-2xl w-full relative backdrop-filter backdrop-blur-lg">
+                    <div className="moving-circle-container">
+                        {circleImage && <div className="moving-circle" style={{backgroundImage: `url(${circleImage})`}}></div>}
+                    </div>
+                    {size ? (
+                        <h1 className="text-2xl font-bold mb-6 text-indigo-600">画像を完成させよう！がんばって！</h1>
+                    ) : (
+                        <h1 className="text-4xl font-bold mb-8 text-indigo-600">画像スライドパズル</h1>
+                    )}
+                    {!image ? (
+                        <div className="space-y-4">
+                            <p className="text-xl mb-4">画像をアップロードしてください:</p>
+                            <input 
+                                type="file" 
+                                accept="image/*" 
+                                onChange={handleImageUpload}
+                                className="block w-full text-sm text-gray-500
+                                    file:mr-4 file:py-2 file:px-4
+                                    file:rounded-full file:border-0
+                                    file:text-sm file:font-semibold
+                                    file:bg-indigo-50 file:text-indigo-700
+                                    hover:file:bg-indigo-100"
+                            />
+                        </div>
+                    ) : !size ? (
+                        <div className="space-y-4 slide-in">
+                            <img src={image} alt="Uploaded" className="w-64 h-64 object-cover mx-auto rounded-lg shadow-md" />
+                            <p className="text-xl mb-4">パズルサイズを選択してください:</p>
+                            {[2, 3, 4].map(s => (
+                                <button
+                                    key={s}
+                                    onClick={() => handleSizeSelect(s)}
+                                    className="bg-indigo-500 text-white px-6 py-3 rounded-full text-lg font-semibold hover:bg-indigo-600 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105 mx-2"
+                                >
+                                    {s}×{s}
+                                </button>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="slide-in">
+                            <div className="grid gap-1 mx-auto" style={{
+                                gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))`,
+                                width: `${size * 60}px`,
+                                height: `${size * 60}px`,
+                            }}>
+                                {puzzle.map((num, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => handleTileClick(index)}
+                                        className={`puzzle-tile w-full h-full flex items-center justify-center text-xl font-bold rounded ${
+                                            num === size * size - 1 ? 'bg-gray-200' : ''
+                                        }`}
+                                        style={num !== size * size - 1 ? {
+                                            backgroundImage: `url(${image})`,
+                                            backgroundSize: `${size * 100}%`,
+                                            backgroundPosition: `${(num % size) / (size - 1) * 100}% ${Math.floor(num / size) / (size - 1) * 100}%`
+                                        } : {}}
+                                        disabled={isCompleted()}
+                                    >
+                                        {num === size * size - 1 ? '' : ''}
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="mt-6 text-lg font-semibold">移動回数: {moves}</p>
+                            {isCompleted() && (
+                                <p className="mt-4 text-2xl font-bold text-green-500">
+                                    クリア！おめでとうございます！
+                                </p>
+                            )}
+                            <button
+                                onClick={() => {setSize(null); setImage(null); setCircleImage(null); setMoves(0);}}
+                                className="mt-8 bg-indigo-500 text-white px-6 py-2 rounded-full hover:bg-indigo-600 transition duration-300 transform hover:-translate-y-1 hover:scale-105"
+                            >
+                                最初からやり直す
+                            </button>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
