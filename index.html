@@ -1,210 +1,404 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>画像スライドパズル</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/17.0.2/umd/react-dom.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-    <style>
-        @keyframes slideIn {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes moveLeftRight {
-            0%, 100% { transform: translateX(0) rotate(0deg); }
-            50% { transform: translateX(calc(100vw - 80px - 4rem)) rotate(720deg); }
-        }
-        .slide-in {
-            animation: slideIn 0.3s ease-out;
-        }
-        .puzzle-tile {
-            transition: all 0.3s ease;
-            background-size: cover;
-            background-position: center;
-        }
-        .puzzle-tile:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
-        }
-        .moving-circle-container {
-            position: fixed;
-            top: -70px;
-            left: -2rem;
-            right: -2rem;
-            height: 80px;
-            overflow: hidden;
-        }
-        .moving-circle {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-size: cover;
-            background-position: center;
-            position: absolute;
-            left: 2rem;
-            animation: moveLeftRight 10s linear infinite;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>My Modern Portfolio with Realistic Torii Tunnel</title>
+  <!-- Google Fonts 例: Montserrat を利用 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    /******************************************************
+     * 0. 全体設定
+     ******************************************************/
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;  /* 背景キャンバスと重ならないようにスクロールをなくす */
+      width: 100%;
+      height: 100%;
+      font-family: "Montserrat", sans-serif;
+      background-color: #000; /* 読み込み時の背景色 */
+      color: #fff;
+    }
+
+    /* Three.js の描画用Canvasを全画面に */
+    #bg-canvas {
+      display: block;
+      position: absolute; /* オーバーレイ要素の背面に */
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /******************************************************
+     * 1. ヘッダー（ナビゲーション）
+     ******************************************************/
+    header {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      z-index: 9999; /* Canvasの上に重ねる */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 2rem;
+      box-sizing: border-box;
+      background: rgba(0, 0, 0, 0.2); /* 半透明で背景アニメを活かす */
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: 0.1em;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      margin: 0;
+      padding: 0;
+      gap: 1.5rem;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.3s;
+    }
+    nav a:hover {
+      opacity: 0.7;
+    }
+
+    /******************************************************
+     * 2. ヒーローセクション（トップのメインビジュアル）
+     ******************************************************/
+    .hero {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 800px;
+      text-align: center;
+      z-index: 9999;
+    }
+
+    .hero h2 {
+      font-size: 2.4rem;
+      margin-bottom: 0.8rem;
+      font-weight: 700;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      margin-bottom: 1.2rem;
+      line-height: 1.6;
+      color: #eee;
+    }
+
+    .hero a.cta {
+      display: inline-block;
+      padding: 0.8rem 1.6rem;
+      font-weight: 700;
+      text-decoration: none;
+      background: #fff;
+      color: #000;
+      border-radius: 4px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .hero a.cta:hover {
+      background: #000;
+      color: #fff;
+    }
+
+    /******************************************************
+     * 3. 下層セクション（About, Works, Contact など）
+     ******************************************************/
+    main {
+      position: relative;
+      z-index: 9999;
+      padding: 4rem 2rem 6rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      margin-top: 80vh; /* Heroセクションを下に流すため */
+    }
+
+    section {
+      margin-bottom: 4rem;
+    }
+
+    section h3 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    section p {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #ddd;
+      max-width: 800px;
+    }
+
+    /******************************************************
+     * 4. フッター
+     ******************************************************/
+    footer {
+      position: relative;
+      z-index: 9999;
+      text-align: center;
+      padding: 2rem 1rem;
+      background: rgba(0, 0, 0, 0.4);
+    }
+    footer p {
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+
+    /******************************************************
+     * レスポンシブ用の簡易調整
+     ******************************************************/
+    @media (max-width: 768px) {
+      .hero h2 {
+        font-size: 1.8rem;
+      }
+      .hero p {
+        font-size: 1rem;
+      }
+      nav ul {
+        gap: 1rem;
+      }
+    }
+  </style>
 </head>
-<body class="bg-gradient-to-r from-blue-200 via-indigo-200 to-purple-200 min-h-screen flex items-center justify-center py-12">
-    <div id="root"></div>
+<body>
 
-    <script type="text/babel">
-        const App = () => {
-            const [size, setSize] = React.useState(null);
-            const [puzzle, setPuzzle] = React.useState([]);
-            const [moves, setMoves] = React.useState(0);
-            const [image, setImage] = React.useState(null);
-            const [circleImage, setCircleImage] = React.useState(null);
+  <!-- 1. ヘッダー -->
+  <header>
+    <h1>My Portfolio</h1>
+    <nav>
+      <ul>
+        <li><a href="#hero">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#works">Works</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
 
-            const createPuzzle = (size) => {
-                const numbers = Array.from({length: size * size}, (_, i) => i);
-                return numbers.sort(() => Math.random() - 0.5);
-            };
+  <!-- 2. ヒーローセクション -->
+  <div class="hero" id="hero">
+    <h2>Modern & Stylish Portfolio</h2>
+    <p>
+      Welcome to my personal space. I’m a web developer, designer, and creative technologist.
+      Explore my works below and let’s create something amazing together.
+    </p>
+    <a href="#works" class="cta">View My Works</a>
+  </div>
 
-            const handleSizeSelect = (selectedSize) => {
-                setSize(selectedSize);
-                setPuzzle(createPuzzle(selectedSize));
-                setMoves(0);
-            };
+  <!-- 3. メインコンテンツ -->
+  <main>
+    <!-- About セクション -->
+    <section id="about">
+      <h3>About Me</h3>
+      <p>
+        I am a Tokyo-based full-stack developer with a passion for crafting seamless user
+        experiences and visually stunning designs. I specialize in modern JavaScript frameworks,
+        responsive design, and creative coding with tools like Three.js.
+      </p>
+    </section>
 
-            const handleImageUpload = (e) => {
-                const file = e.target.files[0];
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        const size = Math.min(img.width, img.height);
-                        canvas.width = canvas.height = size;
-                        ctx.drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, size, size);
-                        setImage(canvas.toDataURL());
+    <!-- Works セクション -->
+    <section id="works">
+      <h3>My Works</h3>
+      <p>
+        Here you can showcase your project portfolio, linking to specific case studies or code
+        repositories. Consider including screenshots or embedded videos for a dynamic presentation.
+      </p>
+    </section>
 
-                        // Create circular image
-                        const circleCanvas = document.createElement('canvas');
-                        const circleCtx = circleCanvas.getContext('2d');
-                        circleCanvas.width = circleCanvas.height = 80;
-                        circleCtx.beginPath();
-                        circleCtx.arc(40, 40, 40, 0, Math.PI * 2, true);
-                        circleCtx.closePath();
-                        circleCtx.clip();
-                        circleCtx.drawImage(canvas, 0, 0, size, size, 0, 0, 80, 80);
-                        setCircleImage(circleCanvas.toDataURL());
-                    };
-                    img.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            };
+    <!-- Contact セクション -->
+    <section id="contact">
+      <h3>Contact</h3>
+      <p>
+        Interested in collaborating or just want to say hello?
+        Feel free to reach out via email at <strong>youremail@example.com</strong> or 
+        connect with me on <strong>LinkedIn</strong>, <strong>GitHub</strong>, or <strong>Twitter</strong>.
+      </p>
+    </section>
+  </main>
 
-            const handleTileClick = (index) => {
-                const newPuzzle = [...puzzle];
-                const emptyIndex = newPuzzle.indexOf(size * size - 1);
-                const rowSize = size;
+  <!-- 4. フッター -->
+  <footer>
+    <p>&copy; 2025 My Portfolio. All Rights Reserved.</p>
+  </footer>
 
-                if (
-                    (index === emptyIndex - 1 && index % rowSize !== rowSize - 1) ||
-                    (index === emptyIndex + 1 && index % rowSize !== 0) ||
-                    index === emptyIndex - rowSize ||
-                    index === emptyIndex + rowSize
-                ) {
-                    [newPuzzle[index], newPuzzle[emptyIndex]] = [newPuzzle[emptyIndex], newPuzzle[index]];
-                    setPuzzle(newPuzzle);
-                    setMoves(moves + 1);
-                }
-            };
+  <!-- Three.js背景(伏見稲荷 鳥居トンネル + 石畳) -->
+  <canvas id="bg-canvas"></canvas>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+  <script>
+    /******************************************************
+     * シーン、カメラ、レンダラーのセットアップ
+     ******************************************************/
+    const canvas = document.getElementById('bg-canvas');
+    const scene = new THREE.Scene();
 
-            const isCompleted = () => {
-                return puzzle.every((num, index) => num === index);
-            };
+    // カメラ
+    const camera = new THREE.PerspectiveCamera(
+      70,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+    camera.position.set(0, 1.5, 5);
 
-            return (
-                <div className="text-center p-8 bg-white bg-opacity-80 rounded-lg shadow-2xl max-w-2xl w-full relative backdrop-filter backdrop-blur-lg">
-                    <div className="moving-circle-container">
-                        {circleImage && <div className="moving-circle" style={{backgroundImage: `url(${circleImage})`}}></div>}
-                    </div>
-                    {size ? (
-                        <h1 className="text-2xl font-bold mb-6 text-indigo-600">画像を完成させよう！がんばって！</h1>
-                    ) : (
-                        <h1 className="text-4xl font-bold mb-8 text-indigo-600">画像スライドパズル</h1>
-                    )}
-                    {!image ? (
-                        <div className="space-y-4">
-                            <p className="text-xl mb-4">画像をアップロードしてください:</p>
-                            <input 
-                                type="file" 
-                                accept="image/*" 
-                                onChange={handleImageUpload}
-                                className="block w-full text-sm text-gray-500
-                                    file:mr-4 file:py-2 file:px-4
-                                    file:rounded-full file:border-0
-                                    file:text-sm file:font-semibold
-                                    file:bg-indigo-50 file:text-indigo-700
-                                    hover:file:bg-indigo-100"
-                            />
-                        </div>
-                    ) : !size ? (
-                        <div className="space-y-4 slide-in">
-                            <img src={image} alt="Uploaded" className="w-64 h-64 object-cover mx-auto rounded-lg shadow-md" />
-                            <p className="text-xl mb-4">パズルサイズを選択してください:</p>
-                            {[2, 3, 4].map(s => (
-                                <button
-                                    key={s}
-                                    onClick={() => handleSizeSelect(s)}
-                                    className="bg-indigo-500 text-white px-6 py-3 rounded-full text-lg font-semibold hover:bg-indigo-600 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105 mx-2"
-                                >
-                                    {s}×{s}
-                                </button>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="slide-in">
-                            <div className="grid gap-1 mx-auto" style={{
-                                gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))`,
-                                width: `${size * 60}px`,
-                                height: `${size * 60}px`,
-                            }}>
-                                {puzzle.map((num, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => handleTileClick(index)}
-                                        className={`puzzle-tile w-full h-full flex items-center justify-center text-xl font-bold rounded ${
-                                            num === size * size - 1 ? 'bg-gray-200' : ''
-                                        }`}
-                                        style={num !== size * size - 1 ? {
-                                            backgroundImage: `url(${image})`,
-                                            backgroundSize: `${size * 100}%`,
-                                            backgroundPosition: `${(num % size) / (size - 1) * 100}% ${Math.floor(num / size) / (size - 1) * 100}%`
-                                        } : {}}
-                                        disabled={isCompleted()}
-                                    >
-                                        {num === size * size - 1 ? '' : ''}
-                                    </button>
-                                ))}
-                            </div>
-                            <p className="mt-6 text-lg font-semibold">移動回数: {moves}</p>
-                            {isCompleted() && (
-                                <p className="mt-4 text-2xl font-bold text-green-500">
-                                    クリア！おめでとうございます！
-                                </p>
-                            )}
-                            <button
-                                onClick={() => {setSize(null); setImage(null); setCircleImage(null); setMoves(0);}}
-                                className="mt-8 bg-indigo-500 text-white px-6 py-2 rounded-full hover:bg-indigo-600 transition duration-300 transform hover:-translate-y-1 hover:scale-105"
-                            >
-                                最初からやり直す
-                            </button>
-                        </div>
-                    )}
-                </div>
-            );
-        };
+    // レンダラー
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
 
-        ReactDOM.render(<App />, document.getElementById('root'));
-    </script>
+    // シャドウ有効化（よりリアルにする場合）
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    // リサイズ対応
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    /******************************************************
+     * ライティング
+     ******************************************************/
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(0, 10, 10);
+    directionalLight.castShadow = true; // シャドウを落とすライトに設定
+    directionalLight.shadow.mapSize.width = 2048;
+    directionalLight.shadow.mapSize.height = 2048;
+    scene.add(directionalLight);
+
+    /******************************************************
+     * テクスチャ読み込み (石畳)
+     ******************************************************/
+    const textureLoader = new THREE.TextureLoader();
+    // ここで石畳用テクスチャと法線マップを読み込み
+    // （画像ファイルは実際のパスに置き換えてください）
+    const stoneTexture = textureLoader.load('stone_floor.jpg');
+    const stoneNormal = textureLoader.load('stone_floor_normal.jpg');
+
+    // テクスチャを繰り返し(RepeatWrapping)に設定してタイル状に
+    stoneTexture.wrapS = stoneTexture.wrapT = THREE.RepeatWrapping;
+    stoneNormal.wrapS = stoneNormal.wrapT = THREE.RepeatWrapping;
+
+    // 石畳の道がずっと奥まで続くイメージなので、縦方向に大きくリピート
+    stoneTexture.repeat.set(2, 50);
+    stoneNormal.repeat.set(2, 50);
+
+    /******************************************************
+     * 石畳の道となるPlane
+     *  - 幅を狭くして鳥居に合うように
+     ******************************************************/
+    const stoneGeo = new THREE.PlaneGeometry(3, 300); // 幅3m x 奥行300m
+    const stoneMat = new THREE.MeshStandardMaterial({
+      map: stoneTexture,
+      normalMap: stoneNormal,
+      roughness: 0.8,
+      metalness: 0.0,
+    });
+    const stonePlane = new THREE.Mesh(stoneGeo, stoneMat);
+    stonePlane.rotation.x = -Math.PI / 2; // 水平に
+    stonePlane.position.y = 0;           // 高さ0に
+    // シャドウ
+    stonePlane.receiveShadow = true;
+    scene.add(stonePlane);
+
+    /******************************************************
+     * 千本鳥居(風)の配置
+     ******************************************************/
+    const toriiCount = 50;
+    const toriiSpacing = 3;
+
+    function createTorii() {
+      const toriiGroup = new THREE.Group();
+
+      // 柱
+      const pillarGeo = new THREE.BoxGeometry(0.1, 2, 0.1);
+      const pillarMat = new THREE.MeshPhongMaterial({ color: 0xcc0033 });
+
+      const pillarLeft = new THREE.Mesh(pillarGeo, pillarMat);
+      pillarLeft.position.set(-0.5, 1, 0);
+      pillarLeft.castShadow = true;  // 柱が影を落とす
+      toriiGroup.add(pillarLeft);
+
+      const pillarRight = new THREE.Mesh(pillarGeo, pillarMat);
+      pillarRight.position.set(0.5, 1, 0);
+      pillarRight.castShadow = true;
+      toriiGroup.add(pillarRight);
+
+      // 横棒
+      const crossbarGeo = new THREE.BoxGeometry(1.4, 0.1, 0.3);
+      const crossbar = new THREE.Mesh(crossbarGeo, pillarMat);
+      crossbar.position.set(0, 2, 0);
+      crossbar.castShadow = true;
+      toriiGroup.add(crossbar);
+
+      // 屋根
+      const topbarGeo = new THREE.BoxGeometry(1.6, 0.05, 0.2);
+      const topbar = new THREE.Mesh(topbarGeo, pillarMat);
+      topbar.position.set(0, 2.1, 0);
+      topbar.rotation.z = 0.02;
+      topbar.castShadow = true;
+      toriiGroup.add(topbar);
+
+      // グループ全体も影を受けるように
+      toriiGroup.receiveShadow = true;
+
+      return toriiGroup;
+    }
+
+    const toriiArray = [];
+    for (let i = 0; i < toriiCount; i++) {
+      const torii = createTorii();
+      // 石畳に合わせて中心に配置し、奥へずらす
+      torii.position.x = 0;
+      torii.position.z = -i * toriiSpacing;
+      scene.add(torii);
+      toriiArray.push(torii);
+    }
+
+    /******************************************************
+     * アニメーション (カメラが奥へ進む)
+     ******************************************************/
+    let speed = 0.03;
+    const reuseDistance = toriiSpacing * toriiCount;
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      camera.position.z -= speed;
+
+      // 無限ループ感を出すため、後ろに回った鳥居をさらに奥へ再配置
+      toriiArray.forEach((torii) => {
+        if (torii.position.z - camera.position.z > 10) {
+          torii.position.z -= reuseDistance;
+        }
+      });
+
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
 </body>
 </html>
