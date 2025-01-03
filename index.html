@@ -2,36 +2,93 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Fixed Video BG + Slower Playback + More Lanterns</title>
+  <title>Torii Tunnel + Fixed Video BG + Lanterns + Hamburger Menu</title>
+
   <style>
+    /* 全画面表示 */
     html, body {
       margin: 0; padding: 0;
       width: 100%; height: 100%;
       overflow: hidden;
       background: #000;
+      font-family: "Open Sans", sans-serif;
     }
+
+    /* Three.js描画Canvas */
     #bg-canvas {
       position: absolute;
       top: 0; left: 0;
       width: 100%; height: 100%;
       display: block;
+      z-index: 1; /* 3Dシーン用 */
     }
-    .section {
+
+    /* ===== ハンバーガーメニュー ===== */
+    /* ハンバーガーアイコン */
+    .hamburger {
       position: absolute;
-      left: 10%;
-      width: 80%;
-      height: 100vh;
-      background: rgba(0,0,0,0.3);
-      color: #fff;
-      padding: 2rem;
-      font-family: "Open Sans", sans-serif;
+      top: 20px;
+      left: 20px;
+      width: 30px;
+      height: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      z-index: 9999; /* 最前面 */
     }
-    #about { top: 150vh; }
-    #learning { top: 250vh; }
-    #projects { top: 350vh; }
-    #contact { top: 450vh; }
+    .hamburger span {
+      display: block;
+      width: 100%;
+      height: 4px;
+      background: #fff;
+      border-radius: 2px;
+    }
+
+    /* サイドバー（メニュー） */
+    .sidebar {
+      position: absolute;
+      top: 0; left: 0;
+      width: 220px;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px); /* ぼかし効果(対応ブラウザ) */
+      transform: translateX(-220px); /* 初期は隠す */
+      transition: transform 0.3s ease;
+      z-index: 9998;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      padding-top: 80px; /* アイコンとかぶらないよう余白 */
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    .sidebar.open {
+      transform: translateX(0);
+    }
+    .sidebar ul {
+      list-style: none;
+      margin: 0; padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .sidebar li {
+      margin: 0; padding: 0;
+    }
+    /* シンプルな文字リンク */
+    .sidebar a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 1.2rem;
+      transition: opacity 0.3s;
+    }
+    .sidebar a:hover {
+      opacity: 0.7;
+    }
   </style>
-  <!-- Google Fonts: Open Sans -->
+
+  <!-- Google Fonts (Open Sans) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -40,53 +97,75 @@
   />
 </head>
 <body>
+
+  <!-- ハンバーガーアイコン -->
+  <div class="hamburger" id="hamburger">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <!-- サイドバー (メニュー) -->
+  <nav class="sidebar" id="sidebar">
+    <ul>
+      <li><a href="about.html">ABOUT ME</a></li>
+      <li><a href="learning.html">LEARNING</a></li>
+      <li><a href="projects.html">PROJECTS</a></li>
+      <li><a href="contact.html">CONTACT</a></li>
+      <li><a href="index2.html">Change Style</a></li>
+    </ul>
+  </nav>
+
+  <!-- Three.js用Canvas (背景動画＋トンネル) -->
   <canvas id="bg-canvas"></canvas>
 
-  <!-- Example page sections -->
-  <div id="about" class="section">
-    <h1>ABOUT ME</h1>
-    <p>... biography here ...</p>
-  </div>
-  <div id="learning" class="section">
-    <h1>LEARNING</h1>
-    <p>... learning content ...</p>
-  </div>
-  <div id="projects" class="section">
-    <h1>PROJECTS</h1>
-    <p>... project details ...</p>
-  </div>
-  <div id="contact" class="section">
-    <h1>CONTACT</h1>
-    <p>... contact info ...</p>
-  </div>
-
-  <!-- Three.js -->
+  <!-- Three.js の読み込み -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+
+  <!-- ハンバーガーメニュー開閉制御 -->
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const sidebar = document.getElementById('sidebar');
+
+    hamburger.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+    // サイドバー内のリンククリック後、メニューを閉じる(任意)
+    sidebar.addEventListener('click', (e) => {
+      if(e.target.tagName === 'A'){
+        sidebar.classList.remove('open');
+      }
+    });
+  </script>
+
+  <!-- Three.js本体コード (2シーン方式 + トンネル + ランタン60 + 0.5x動画) -->
   <script>
     let renderer;
 
-    // 背景シーン
+    // 背景シーン (固定動画)
     let bgScene, bgCamera;
     let video, videoTexture, bgPlane;
 
     // メインシーン
     let mainScene, mainCamera;
+
+    // 鳥居トンネルの設定
     const toriiArray = [];
     const toriiCount = 40;
     const toriiSpacing = 3;
     const reuseDistance = toriiSpacing * toriiCount;
-    let speed = 0.03;
+    let speed = 0.03; // カメラ前進速度
 
-    // ランタン数を3倍に (もとの20 -> 60)
+    // ランタン数 (3倍=60)
     let lanterns = [];
     const lanternCount = 60;
 
-    // 鳥居色 + ボタン
+    // 鳥居4色 + ボタン(英語)
     const toriiData = [
-      { color: 0x990000, text: "ABOUT ME",    link: "#about" },
-      { color: 0x000099, text: "LEARNING",    link: "#learning" },
-      { color: 0x999900, text: "PROJECTS",    link: "#projects" },
-      { color: 0x009900, text: "CONTACT",     link: "#contact" },
+      { color: 0x990000, text: "ABOUT ME",    link: "about.html" },
+      { color: 0x000099, text: "LEARNING",    link: "learning.html" },
+      { color: 0x999900, text: "PROJECTS",    link: "projects.html" },
+      { color: 0x009900, text: "CONTACT",     link: "contact.html" },
     ];
 
     let raycaster, mouse;
@@ -95,20 +174,18 @@
     animate();
 
     function init() {
-      // レンダラー
       renderer = new THREE.WebGLRenderer({
         canvas: document.getElementById('bg-canvas'),
         antialias: true
       });
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(window.devicePixelRatio);
-      renderer.autoClear = false;
+      renderer.autoClear = false; // 背景とメインを2回描画
 
-      // 背景シーン (固定)
+      // 背景シーン
       bgScene = new THREE.Scene();
-      bgCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-
-      createVideoBG(); // 動画背景を設定
+      bgCamera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+      createVideoBG();
 
       // メインシーン
       mainScene = new THREE.Scene();
@@ -121,7 +198,7 @@
       mainCamera.position.set(0, 1.5, 5);
 
       window.addEventListener('resize', onWindowResize);
-      document.addEventListener('click', onClick);
+      document.addEventListener('click', onDocumentClick);
 
       raycaster = new THREE.Raycaster();
       mouse = new THREE.Vector2();
@@ -130,20 +207,20 @@
       const ambient = new THREE.AmbientLight(0xffffff, 0.3);
       mainScene.add(ambient);
 
-      const dir = new THREE.DirectionalLight(0xffffff, 0.6);
-      dir.position.set(5, 10, 5);
-      dir.castShadow = true;
-      mainScene.add(dir);
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
+      dirLight.position.set(5, 10, 5);
+      dirLight.castShadow = true;
+      mainScene.add(dirLight);
 
       // 石畳
       createStonePath();
 
-      // コムローイ(ランタン)
+      // ランタン(60)
       createLanterns();
 
       // 鳥居トンネル
       for (let i = 0; i < toriiCount; i++) {
-        const index = i % 4;
+        const index = i % 4; // 0~3
         const tData = toriiData[index];
         const toriiGroup = createToriiGroup(tData.color, tData.text, tData.link);
         toriiGroup.position.z = -i * toriiSpacing;
@@ -154,19 +231,17 @@
 
     function createVideoBG() {
       video = document.createElement('video');
-      video.src = 'Serene_Starlit_Lake.mp4';
+      video.src = 'Serene_Starlit_Lake.mp4'; // 同フォルダ内
       video.loop = true;
       video.muted = true;
       video.playsInline = true;
       video.autoplay = true;
-
-      // 再生速度0.5倍に (ゆっくり再生)
+      // 0.5倍速度で再生
       video.playbackRate = 0.5;
 
       video.play().catch(e => {
-        console.warn('Autoplay might be blocked.', e);
+        console.warn('Autoplay might be blocked', e);
       });
-
       videoTexture = new THREE.VideoTexture(video);
 
       const planeGeo = new THREE.PlaneGeometry(2, 2);
@@ -181,7 +256,8 @@
       mainCamera.updateProjectionMatrix();
     }
 
-    function onClick(e) {
+    function onDocumentClick(e) {
+      // Raycasterで3Dボタン判定
       mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
       mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
       raycaster.setFromCamera(mouse, mainCamera);
@@ -191,7 +267,9 @@
         const obj = intersects[0].object;
         if (obj.userData.isToriiButton) {
           const link = obj.userData.link;
-          if (link) location.href = link;
+          if (link) {
+            location.href = link;
+          }
         }
       }
     }
@@ -219,7 +297,7 @@
       mainScene.add(plane);
     }
 
-    // コムローイ(ランタン) (ランタン数3倍)
+    // ランタン60個
     function createLanterns() {
       for (let i = 0; i < lanternCount; i++) {
         const ln = createLanternMesh();
@@ -294,7 +372,6 @@
         group.add(support);
       }
 
-      // 動き
       group.userData.velocity = {
         x: (Math.random()*0.02 - 0.01),
         y: (Math.random()*0.01 + 0.005),
@@ -303,7 +380,7 @@
       return group;
     }
 
-    // 鳥居 + ボタン
+    // 鳥居 + ボタン(Plane)
     function createToriiGroup(colorHex, buttonText, buttonLink) {
       const group = new THREE.Group();
 
@@ -337,7 +414,9 @@
       });
       const btnGeo = new THREE.PlaneGeometry(0.5, 0.18);
       const buttonPlane = new THREE.Mesh(btnGeo, btnMat);
-      buttonPlane.position.set(0, 1.2, 0.05);
+
+      // 少し下げてハンバーガーと重ならないよう調整
+      buttonPlane.position.set(0, 1.0, 0.05);
       buttonPlane.userData.isToriiButton = true;
       buttonPlane.userData.link = buttonLink;
       group.add(buttonPlane);
@@ -356,6 +435,7 @@
       const h = canvas.height;
       ctx.clearRect(0, 0, w, h);
 
+      // 鳥居色 -> RGB
       const col = new THREE.Color(colorHex);
       const r = Math.floor(col.r * 255);
       const g = Math.floor(col.g * 255);
@@ -393,26 +473,26 @@
 
     function roundRect(ctx, x, y, width, height, radius) {
       ctx.beginPath();
-      ctx.moveTo(x + radius, y);
-      ctx.lineTo(x + width - radius, y);
-      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-      ctx.lineTo(x + width, y + height - radius);
-      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-      ctx.lineTo(x + radius, y + height);
-      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-      ctx.lineTo(x, y + radius);
-      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.moveTo(x+radius, y);
+      ctx.lineTo(x+width-radius, y);
+      ctx.quadraticCurveTo(x+width, y, x+width, y+radius);
+      ctx.lineTo(x+width, y+height-radius);
+      ctx.quadraticCurveTo(x+width, y+height, x+width-radius, y+height);
+      ctx.lineTo(x+radius, y+height);
+      ctx.quadraticCurveTo(x, y+height, x, y+height-radius);
+      ctx.lineTo(x, y+radius);
+      ctx.quadraticCurveTo(x, y, x+radius, y);
       ctx.closePath();
     }
 
     function animate() {
       requestAnimationFrame(animate);
 
-      // 背景(固定)を最初に
+      // 背景シーン
       renderer.clear();
       renderer.render(bgScene, bgCamera);
 
-      // 深度バッファをクリアしてからメイン
+      // 深度バッファをクリア
       renderer.clearDepth();
 
       // メインシーン
