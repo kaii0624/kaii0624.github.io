@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Minimal Style Switcher (index2)</title>
+  <!-- Google Fonts (Open Sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      background: #f7f7f7;
+      font-family: 'Open Sans', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #333;
+    }
+
+    /* コンテナ中央配置 */
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      text-align: center;
+    }
+
+    /* ボタンリンク */
+    .btn-link {
+      display: inline-block;
+      text-decoration: none;
+      color: #333;
+      font-weight: 600;
+      border: 2px solid #333;
+      padding: 0.6rem 1.2rem;
+      border-radius: 4px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .btn-link:hover {
+      background: #333;
+      color: #fff;
+    }
+
+    /* タイトル（任意） */
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Minimal Style Page</h1>
+
+    <!-- ボタンリンク集 -->
+    <a href="about.html" class="btn-link">ABOUT ME</a>
+    <a href="learning.html" class="btn-link">LEARNING</a>
+    <a href="projects.html" class="btn-link">PROJECTS</a>
+    <a href="contact.html" class="btn-link">CONTACT</a>
+    <a href="index.html" class="btn-link">Change Style</a>
+  </div>
+
+</body>
+</html>
