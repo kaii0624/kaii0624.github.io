@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Fixed Video BG (Serene_Starlit_Lake.mp4) + Torii & Lanterns</title>
+  <title>Fixed Video BG + Slower Playback + More Lanterns</title>
   <style>
     html, body {
       margin: 0; padding: 0;
@@ -31,6 +31,7 @@
     #projects { top: 350vh; }
     #contact { top: 450vh; }
   </style>
+  <!-- Google Fonts: Open Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -41,23 +42,25 @@
 <body>
   <canvas id="bg-canvas"></canvas>
 
+  <!-- Example page sections -->
   <div id="about" class="section">
     <h1>ABOUT ME</h1>
-    <p>... biography ...</p>
+    <p>... biography here ...</p>
   </div>
   <div id="learning" class="section">
     <h1>LEARNING</h1>
-    <p>... learning ...</p>
+    <p>... learning content ...</p>
   </div>
   <div id="projects" class="section">
     <h1>PROJECTS</h1>
-    <p>... projects ...</p>
+    <p>... project details ...</p>
   </div>
   <div id="contact" class="section">
     <h1>CONTACT</h1>
-    <p>... contact ...</p>
+    <p>... contact info ...</p>
   </div>
 
+  <!-- Three.js -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
   <script>
     let renderer;
@@ -74,11 +77,11 @@
     const reuseDistance = toriiSpacing * toriiCount;
     let speed = 0.03;
 
-    // ランタン
+    // ランタン数を3倍に (もとの20 -> 60)
     let lanterns = [];
-    const lanternCount = 20;
+    const lanternCount = 60;
 
-    // 鳥居データ
+    // 鳥居色 + ボタン
     const toriiData = [
       { color: 0x990000, text: "ABOUT ME",    link: "#about" },
       { color: 0x000099, text: "LEARNING",    link: "#learning" },
@@ -92,22 +95,22 @@
     animate();
 
     function init() {
+      // レンダラー
       renderer = new THREE.WebGLRenderer({
         canvas: document.getElementById('bg-canvas'),
         antialias: true
       });
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(window.devicePixelRatio);
-      // 2回描画するため autoClear = false
       renderer.autoClear = false;
 
-      // ========== 背景シーン ==========
+      // 背景シーン (固定)
       bgScene = new THREE.Scene();
       bgCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-      createVideoBG(); // 背景動画を貼る
+      createVideoBG(); // 動画背景を設定
 
-      // ========== メインシーン ==========
+      // メインシーン
       mainScene = new THREE.Scene();
       mainCamera = new THREE.PerspectiveCamera(
         70,
@@ -117,7 +120,6 @@
       );
       mainCamera.position.set(0, 1.5, 5);
 
-      // イベント
       window.addEventListener('resize', onWindowResize);
       document.addEventListener('click', onClick);
 
@@ -127,6 +129,7 @@
       // ライティング
       const ambient = new THREE.AmbientLight(0xffffff, 0.3);
       mainScene.add(ambient);
+
       const dir = new THREE.DirectionalLight(0xffffff, 0.6);
       dir.position.set(5, 10, 5);
       dir.castShadow = true;
@@ -149,7 +152,6 @@
       }
     }
 
-    // 背景動画を bgScene に配置
     function createVideoBG() {
       video = document.createElement('video');
       video.src = 'Serene_Starlit_Lake.mp4';
@@ -157,25 +159,24 @@
       video.muted = true;
       video.playsInline = true;
       video.autoplay = true;
+
+      // 再生速度0.5倍に (ゆっくり再生)
+      video.playbackRate = 0.5;
+
       video.play().catch(e => {
-        console.warn('Autoplay blocked.', e);
+        console.warn('Autoplay might be blocked.', e);
       });
+
       videoTexture = new THREE.VideoTexture(video);
 
       const planeGeo = new THREE.PlaneGeometry(2, 2);
-      const planeMat = new THREE.MeshBasicMaterial({
-        map: videoTexture
-      });
+      const planeMat = new THREE.MeshBasicMaterial({ map: videoTexture });
       bgPlane = new THREE.Mesh(planeGeo, planeMat);
-      // depthTest=false にしておくのも手
-      // planeMat.depthTest = false;
       bgScene.add(bgPlane);
     }
 
-    // リサイズ
     function onWindowResize() {
       renderer.setSize(window.innerWidth, window.innerHeight);
-
       mainCamera.aspect = window.innerWidth / window.innerHeight;
       mainCamera.updateProjectionMatrix();
     }
@@ -218,7 +219,7 @@
       mainScene.add(plane);
     }
 
-    // コムローイ
+    // コムローイ(ランタン) (ランタン数3倍)
     function createLanterns() {
       for (let i = 0; i < lanternCount; i++) {
         const ln = createLanternMesh();
@@ -234,6 +235,7 @@
 
     function createLanternMesh() {
       const group = new THREE.Group();
+
       const bodyGeo = new THREE.CylinderGeometry(0.4, 0.3, 0.8, 16, 1, true);
       const bodyMat = new THREE.MeshPhongMaterial({
         color: 0xfffaf0,
@@ -283,7 +285,7 @@
       fireLight.position.y = -0.35;
       group.add(fireLight);
 
-      // 4 supports
+      // 柱4本
       for (let i = 0; i < 4; i++) {
         const supGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.8, 4);
         const support = new THREE.Mesh(supGeo, ringMat);
@@ -292,7 +294,7 @@
         group.add(support);
       }
 
-      // 浮遊
+      // 動き
       group.userData.velocity = {
         x: (Math.random()*0.02 - 0.01),
         y: (Math.random()*0.01 + 0.005),
@@ -327,7 +329,7 @@
       topbar.rotation.z = 0.02;
       group.add(topbar);
 
-      // ボタン (Plane)
+      // ボタン
       const btnTex = createButtonTexture(buttonText, colorHex);
       const btnMat = new THREE.MeshBasicMaterial({
         map: btnTex,
@@ -343,6 +345,7 @@
       return group;
     }
 
+    // ボタンCanvas
     function createButtonTexture(label, colorHex) {
       const canvas = document.createElement('canvas');
       canvas.width = 256;
@@ -353,7 +356,6 @@
       const h = canvas.height;
       ctx.clearRect(0, 0, w, h);
 
-      // 鳥居色 -> RGB
       const col = new THREE.Color(colorHex);
       const r = Math.floor(col.r * 255);
       const g = Math.floor(col.g * 255);
@@ -406,18 +408,18 @@
     function animate() {
       requestAnimationFrame(animate);
 
-      // ======== 背景シーンを最初に描画 ========
+      // 背景(固定)を最初に
       renderer.clear();
       renderer.render(bgScene, bgCamera);
 
-      // 深度バッファをクリアしてからメインシーンを描画
+      // 深度バッファをクリアしてからメイン
       renderer.clearDepth();
 
-      // ======== メインシーン（鳥居, ランタン） ========
+      // メインシーン
       mainCamera.position.z -= speed;
 
-      // 鳥居を無限ループ
-      toriiArray.forEach((torii) => {
+      // 鳥居無限ループ
+      toriiArray.forEach(torii => {
         if (torii.position.z - mainCamera.position.z > 10) {
           torii.position.z -= reuseDistance;
         }
