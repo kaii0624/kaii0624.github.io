@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Torii Tunnel + Stone Path + Kom Loi + Shooting Star + Video BG</title>
+  <title>Torii Tunnel + Stone Path + Kom Loi + Shooting Star + Video Sphere BG</title>
   <!-- Google Fonts 例: Montserrat を利用 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,7 +48,7 @@
       color: #fff; text-decoration: none; font-weight: 500; transition: opacity 0.3s;
     }
     nav a:hover { opacity: 0.7; }
-    
+
     .hero {
       position: absolute;
       top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -68,7 +68,7 @@
     .hero a.cta:hover {
       background: #000; color: #fff;
     }
-    
+
     main {
       max-width: 1000px; margin: 80vh auto 0; padding: 4rem 2rem 6rem;
     }
@@ -104,7 +104,7 @@
 
   <!-- ヒーローセクション -->
   <div class="hero" id="hero">
-    <h2>MOOodern & Stylish Portfolio</h2>
+    <h2>Modern & Stylish Portfolio</h2>
     <p>
       Welcome to my personal space. I’m a web developer, designer, and creative technologist.
       Explore my works below and let’s create something amazing together.
@@ -146,7 +146,7 @@
     <p>&copy; 2025 My Portfolio. All Rights Reserved.</p>
   </footer>
 
-  <!-- Three.js背景 (動画 + 鳥居トンネル + 石畳 + コムローイ + 流れ星) -->
+  <!-- Three.js背景 (動画を球体の内側に貼る) -->
   <canvas id="bg-canvas"></canvas>
   <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
   <script>
@@ -178,22 +178,30 @@
     });
 
     /******************************************************
-     * 動画を読み込み、背景として適用
+     * 1) 背景用の球体を作成し、その内側に動画を貼る
      ******************************************************/
     const video = document.createElement('video');
-    video.src = 'Serene_Starlit_Lake.mp4'; // 同ディレクトリに配置
+    video.src = 'Serene_Starlit_Lake.mp4'; // 同フォルダに配置
     video.loop = true;
     video.muted = true;
     video.playsInline = true;
     video.autoplay = true;
-    video.play(); // 自動再生
+    video.play(); // ユーザー操作なしで動かない場合は、音声オフ/別のボタン操作が必要になることも
 
     const videoTexture = new THREE.VideoTexture(video);
-    // シーンの背景に設定 (2D 的に貼り付けられます)
-    scene.background = videoTexture;
+    const videoMaterial = new THREE.MeshBasicMaterial({
+      map: videoTexture,
+      side: THREE.BackSide  // 球体の内側を表示
+    });
+
+    // 十分大きい半径を与えておけば、カメラの向き関係なく常に背景になる
+    const sphereGeo = new THREE.SphereGeometry(500, 32, 32);
+    const sphereMesh = new THREE.Mesh(sphereGeo, videoMaterial);
+    sphereMesh.rotation.y = Math.PI; // 必要に応じて向き調整
+    scene.add(sphereMesh);
 
     /******************************************************
-     * ライティング (夜間想定)
+     * 2) ライティング
      ******************************************************/
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
     scene.add(ambientLight);
@@ -204,16 +212,14 @@
     scene.add(moonLight);
 
     /******************************************************
-     * 石畳の道
+     * 3) 石畳
      ******************************************************/
     const textureLoader = new THREE.TextureLoader();
-    // 適宜差し替え
+
     const stoneTexture = textureLoader.load('stone_floor.jpg');
     const stoneNormal = textureLoader.load('stone_floor_normal.jpg');
-
     stoneTexture.wrapS = stoneTexture.wrapT = THREE.RepeatWrapping;
     stoneNormal.wrapS = stoneNormal.wrapT = THREE.RepeatWrapping;
-    // 長い道にしたいので繰り返し回数を増やす
     stoneTexture.repeat.set(2, 50);
     stoneNormal.repeat.set(2, 50);
 
@@ -230,7 +236,7 @@
     scene.add(stonePlane);
 
     /******************************************************
-     * 鳥居トンネル
+     * 4) 鳥居トンネル
      ******************************************************/
     const toriiCount = 50;
     const toriiSpacing = 3;
@@ -276,7 +282,7 @@
     }
 
     /******************************************************
-     * コムローイ(ランタン)
+     * 5) コムローイ(ランタン)
      ******************************************************/
     function createLantern() {
       const lanternGroup = new THREE.Group();
@@ -364,14 +370,14 @@
     }
 
     /******************************************************
-     * 流れ星(パーティクル)
+     * 6) 流れ星(パーティクル)
      ******************************************************/
     const meteorCount = 30;
     const meteorPositions = new Float32Array(meteorCount * 3);
     const meteorVelocities = [];
     for (let i = 0; i < meteorCount; i++) {
       meteorPositions[i*3+0] = (Math.random() - 0.5)*200;
-      meteorPositions[i*3+1] = Math.random()*30 + 10;  // やや高めに配置
+      meteorPositions[i*3+1] = Math.random()*30 + 10;  // 高めに配置
       meteorPositions[i*3+2] = (Math.random() - 0.5)*200;
 
       meteorVelocities.push({
@@ -390,7 +396,7 @@
     scene.add(meteorPoints);
 
     /******************************************************
-     * アニメーション
+     * 7) アニメーション
      ******************************************************/
     let speed = 0.03;    // カメラの前進スピード
     const reuseDistance = toriiSpacing * toriiCount;
