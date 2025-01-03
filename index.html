@@ -1,122 +1,104 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Full 1920x1080 Video BG + Torii + Stone Path + Lanterns + Shooting Stars</title>
+  <title>Torii Tunnel + Stone Path + Lanterns + Refined Smaller Buttons</title>
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
       overflow: hidden;
       background: #000;
     }
     #bg-canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
       position: absolute;
-      top: 0;
-      left: 0;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: block;
     }
-    /* ヘッダー・メイン・フッターは前面に表示 */
-    header, main, footer {
-      position: relative;
-      z-index: 9999;
+    /* Optional page sections for anchor links */
+    .section {
+      position: absolute;
+      left: 10%;
+      width: 80%;
+      height: 100vh;
+      background: rgba(0,0,0,0.3);
       color: #fff;
-      font-family: sans-serif;
+      padding: 2rem;
+      font-family: "Open Sans", sans-serif;
     }
-    header {
-      background: rgba(0, 0, 0, 0.2);
-      padding: 1rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    nav a {
-      color: #fff;
-      text-decoration: none;
-      margin-left: 1rem;
-    }
+    #about { top: 150vh; }
+    #learning { top: 250vh; }
+    #projects { top: 350vh; }
+    #contact { top: 450vh; }
   </style>
+  <!-- Google Fonts: Open Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
 </head>
 <body>
-  <header>
-    <h1>My Portfolio</h1>
-    <nav>
-      <a href="#hero">Home</a>
-      <a href="#about">About</a>
-      <a href="#works">Works</a>
-      <a href="#contact">Contact</a>
-    </nav>
-  </header>
-
-  <main>
-    <section id="hero" style="height:100vh; display:flex; align-items:center; justify-content:center; text-align:center;">
-      <div>
-        <h2>Modern & Stylish Portfolio</h2>
-        <p>Explore my works below and let’s create something amazing together.</p>
-      </div>
-    </section>
-    <section id="about" style="height:50vh; background:rgba(0,0,0,0.4); padding:2rem;">
-      <h3>About Me</h3>
-      <p>I am a Tokyo-based full-stack developer...</p>
-    </section>
-    <section id="works" style="height:50vh; background:rgba(0,0,0,0.2); padding:2rem;">
-      <h3>My Works</h3>
-      <p>Showcase your project portfolio...</p>
-    </section>
-    <section id="contact" style="height:50vh; background:rgba(0,0,0,0.4); padding:2rem;">
-      <h3>Contact</h3>
-      <p>Feel free to reach out at youremail@example.com...</p>
-    </section>
-  </main>
-
-  <footer style="text-align:center; padding:1rem; background:rgba(0,0,0,0.3);">
-    <p>&copy; 2025 My Portfolio</p>
-  </footer>
-
   <canvas id="bg-canvas"></canvas>
+
+  <!-- Example page anchors -->
+  <div id="about" class="section">
+    <h1>ABOUT ME</h1>
+    <p>... put your biography here ...</p>
+  </div>
+  <div id="learning" class="section">
+    <h1>LEARNING</h1>
+    <p>... put your learning topics here ...</p>
+  </div>
+  <div id="projects" class="section">
+    <h1>PROJECTS</h1>
+    <p>... put your projects here ...</p>
+  </div>
+  <div id="contact" class="section">
+    <h1>CONTACT</h1>
+    <p>... put your contact details here ...</p>
+  </div>
 
   <!-- Three.js -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
   <script>
     let scene, camera, renderer;
-    let video, videoTexture;
-    let videoPlane; // 背景用のPlane
+    let raycaster, mouse;
     let toriiArray = [];
-    let lanterns = [];
-    let meteorPoints;
-    let meteorVelocities = [];
-    let stonePlane;
-
-    const toriiCount = 50;
+    const toriiCount = 40;
     const toriiSpacing = 3;
+    const reuseDistance = toriiSpacing * toriiCount;
+    let speed = 0.03;
+
+    // 4 color variations + button text/link (English)
+    const toriiData = [
+      { color: 0x990000, text: "ABOUT ME",    link: "#about" },
+      { color: 0x000099, text: "LEARNING",    link: "#learning" },
+      { color: 0x999900, text: "PROJECTS",    link: "#projects" },
+      { color: 0x009900, text: "CONTACT",     link: "#contact" },
+    ];
+
+    // Lantern data
+    let lanterns = [];
     const lanternCount = 20;
-    const meteorCount = 30;
-    let speed = 0.03; // カメラの前進速度
-    let reuseDistance;
 
     init();
     animate();
 
     function init() {
-      /******************************************************
-       * 基本設定
-       ******************************************************/
       scene = new THREE.Scene();
 
       camera = new THREE.PerspectiveCamera(
-        60,
+        70,
         window.innerWidth / window.innerHeight,
         0.1,
         1000
       );
-      // カメラを少し前に置く
-      camera.position.set(0, 1.5, 8);
+      camera.position.set(0, 1.5, 5);
 
-      renderer = new THREE.WebGLRenderer({ 
+      renderer = new THREE.WebGLRenderer({
         canvas: document.getElementById('bg-canvas'),
         antialias: true
       });
@@ -126,192 +108,207 @@
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
       window.addEventListener('resize', onWindowResize);
+      document.addEventListener('click', onClick);
 
-      /******************************************************
-       * 背景用の動画Planeを作成
-       ******************************************************/
-      createVideoPlane();
+      raycaster = new THREE.Raycaster();
+      mouse = new THREE.Vector2();
 
-      /******************************************************
-       * ライト
-       ******************************************************/
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
       scene.add(ambientLight);
-
-      const dirLight = new THREE.DirectionalLight(0xCCD7FF, 0.3);
-      dirLight.position.set(10, 20, 10);
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
+      dirLight.position.set(5, 10, 5);
       dirLight.castShadow = true;
       scene.add(dirLight);
 
-      /******************************************************
-       * 石畳 (Plane)
-       ******************************************************/
-      const textureLoader = new THREE.TextureLoader();
-      const stoneTexture = textureLoader.load('stone_floor.jpg');
-      const stoneNormal = textureLoader.load('stone_floor_normal.jpg');
-      stoneTexture.wrapS = stoneTexture.wrapT = THREE.RepeatWrapping;
-      stoneNormal.wrapS = stoneNormal.wrapT = THREE.RepeatWrapping;
-      stoneTexture.repeat.set(2, 50);
-      stoneNormal.repeat.set(2, 50);
+      // Stone path
+      createStonePath();
 
-      const stoneGeo = new THREE.PlaneGeometry(3, 300);
-      const stoneMat = new THREE.MeshStandardMaterial({
-        map: stoneTexture,
-        normalMap: stoneNormal,
-        roughness: 0.8,
-        metalness: 0
-      });
-      stonePlane = new THREE.Mesh(stoneGeo, stoneMat);
-      stonePlane.rotation.x = -Math.PI / 2;
-      stonePlane.receiveShadow = true;
-      scene.add(stonePlane);
+      // Lanterns
+      createLanterns();
 
-      /******************************************************
-       * 鳥居トンネル
-       ******************************************************/
-      reuseDistance = toriiSpacing * toriiCount;
+      // Torii tunnel + Buttons
       for (let i = 0; i < toriiCount; i++) {
-        const torii = createTorii();
-        torii.position.z = -i * toriiSpacing;
-        scene.add(torii);
-        toriiArray.push(torii);
+        const index = i % 4;
+        const tData = toriiData[index];
+        const toriiGroup = createToriiGroup(tData.color, tData.text, tData.link);
+        toriiGroup.position.z = -i * toriiSpacing;
+        scene.add(toriiGroup);
+        toriiArray.push(toriiGroup);
       }
-
-      /******************************************************
-       * ランタン
-       ******************************************************/
-      for (let i = 0; i < lanternCount; i++) {
-        const lantern = createLantern();
-        lantern.position.set(
-          Math.random() * 60 - 30,
-          Math.random() * 10,
-          Math.random() * -200 + 10
-        );
-        scene.add(lantern);
-        lanterns.push(lantern);
-      }
-
-      /******************************************************
-       * 流れ星(パーティクル)
-       ******************************************************/
-      const meteorPositions = new Float32Array(meteorCount * 3);
-      for (let i = 0; i < meteorCount; i++) {
-        meteorPositions[i*3+0] = (Math.random() - 0.5)*200;
-        meteorPositions[i*3+1] = Math.random()*30 + 10;
-        meteorPositions[i*3+2] = (Math.random() - 0.5)*200;
-        meteorVelocities.push({
-          x: (Math.random() - 0.5)*0.2,
-          y: -(Math.random()*0.05 + 0.02),
-          z: (Math.random() - 0.5)*0.2
-        });
-      }
-      const meteorGeo = new THREE.BufferGeometry();
-      meteorGeo.setAttribute('position', new THREE.BufferAttribute(meteorPositions, 3));
-
-      const meteorMat = new THREE.PointsMaterial({
-        color: 0xffffff, size: 0.5, transparent: true
-      });
-      meteorPoints = new THREE.Points(meteorGeo, meteorMat);
-      scene.add(meteorPoints);
     }
 
     function onWindowResize() {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
-
-      // 背景Planeをリサイズして常に動画がすべて表示されるように
-      resizeVideoPlane();
     }
 
-    /******************************************************
-     * 1) 動画背景Plane
-     ******************************************************/
-    function createVideoPlane() {
-      // HTMLVideoElement を作り、mp4を読み込む
-      video = document.createElement('video');
-      video.src = 'Serene_Starlit_Lake.mp4'; // 同じフォルダに配置
-      video.loop = true;
-      video.muted = true;
-      video.playsInline = true;
-      video.autoplay = true;
-      video.play().catch(e => {
-        console.warn('自動再生がブロックされた場合は、ユーザー操作が必要です。', e);
-      });
+    function onClick(event) {
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
 
-      // VideoTextureをPlaneに貼る
-      videoTexture = new THREE.VideoTexture(video);
-      const planeMat = new THREE.MeshBasicMaterial({ map: videoTexture });
-      // 16:9 のPlaneを基本形に
-      const planeGeo = new THREE.PlaneGeometry(16, 9);
-      videoPlane = new THREE.Mesh(planeGeo, planeMat);
-      // 背景に回すため z位置を奥に。カメラより後ろに置く
-      videoPlane.position.z = -30;
-
-      scene.add(videoPlane);
-
-      // 初期のリサイズを適用
-      resizeVideoPlane();
+      const intersects = raycaster.intersectObjects(scene.children, true);
+      if (intersects.length > 0) {
+        const obj = intersects[0].object;
+        if (obj.userData.isToriiButton) {
+          const link = obj.userData.link;
+          if (link) location.href = link;
+        }
+      }
     }
 
-    // ウィンドウサイズやカメラ設定に応じてPlaneをスケーリング
-    function resizeVideoPlane() {
-      // カメラからVideoPlaneまでの距離
-      const dist = Math.abs(camera.position.z - videoPlane.position.z);
-
-      // 垂直視野角 (ラジアン) の半分 = camera.fov * 0.5 * (Math.PI/180)
-      const vFov = (camera.fov * Math.PI) / 180.0;
-      const planeHeight = 2 * Math.tan(vFov / 2) * dist;  // カメラからの距離に基づく高さ
-      const planeWidth = planeHeight * camera.aspect;      // アスペクト比で幅を計算
-
-      // PlaneGeometry(16,9) がベース:  幅16, 高さ9 => アスペクト比 16:9
-      // そのため、planeHeight に合わせるには、高さ9分のplaneHeight でスケール
-      videoPlane.scale.x = planeWidth / 16;
-      videoPlane.scale.y = planeHeight / 9;
-    }
-
-    /******************************************************
-     * 2) 鳥居トンネル用関数
-     ******************************************************/
-    function createTorii() {
+    // Torii + smaller button plane
+    function createToriiGroup(colorHex, buttonText, buttonLink) {
       const group = new THREE.Group();
 
+      // Torii
+      const mat = new THREE.MeshPhongMaterial({ color: colorHex });
       const pillarGeo = new THREE.BoxGeometry(0.1, 2, 0.1);
-      const pillarMat = new THREE.MeshPhongMaterial({ color: 0xcc0033 });
 
-      const left = new THREE.Mesh(pillarGeo, pillarMat);
+      const left = new THREE.Mesh(pillarGeo, mat);
       left.position.set(-0.5, 1, 0);
-      left.castShadow = true;
       group.add(left);
 
-      const right = new THREE.Mesh(pillarGeo, pillarMat);
+      const right = new THREE.Mesh(pillarGeo, mat);
       right.position.set(0.5, 1, 0);
-      right.castShadow = true;
       group.add(right);
 
-      const crossbarGeo = new THREE.BoxGeometry(1.4, 0.1, 0.3);
-      const crossbar = new THREE.Mesh(crossbarGeo, pillarMat);
+      const crossGeo = new THREE.BoxGeometry(1.4, 0.1, 0.3);
+      const crossbar = new THREE.Mesh(crossGeo, mat);
       crossbar.position.set(0, 2, 0);
-      crossbar.castShadow = true;
       group.add(crossbar);
 
-      const topbarGeo = new THREE.BoxGeometry(1.6, 0.05, 0.2);
-      const topbar = new THREE.Mesh(topbarGeo, pillarMat);
+      const topGeo = new THREE.BoxGeometry(1.6, 0.05, 0.2);
+      const topbar = new THREE.Mesh(topGeo, mat);
       topbar.position.set(0, 2.1, 0);
       topbar.rotation.z = 0.02;
-      topbar.castShadow = true;
       group.add(topbar);
+
+      // Smaller button
+      const btnTexture = createButtonTexture(buttonText, colorHex);
+      const btnMat = new THREE.MeshBasicMaterial({
+        map: btnTexture,
+        transparent: true
+      });
+      // ~ Slightly smaller plane
+      const btnGeo = new THREE.PlaneGeometry(0.5, 0.18);
+      const buttonPlane = new THREE.Mesh(btnGeo, btnMat);
+      buttonPlane.position.set(0, 1.2, 0.05);
+      buttonPlane.userData.isToriiButton = true;
+      buttonPlane.userData.link = buttonLink;
+      group.add(buttonPlane);
 
       return group;
     }
 
-    /******************************************************
-     * 3) コムローイ(ランタン)用関数
-     ******************************************************/
-    function createLantern() {
-      const lanternGroup = new THREE.Group();
+    // Refined smaller button texture
+    function createButtonTexture(label, colorHex) {
+      const canvas = document.createElement('canvas');
+      // smaller canvas
+      canvas.width = 256;
+      canvas.height = 96;
+      const ctx = canvas.getContext('2d');
 
-      // ランタン本体
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      // Convert colorHex to RGB
+      const c = new THREE.Color(colorHex);
+      const r = Math.floor(c.r * 255);
+      const g = Math.floor(c.g * 255);
+      const b = Math.floor(c.b * 255);
+
+      // Subtle gradient
+      const grad = ctx.createLinearGradient(0, 0, w, h);
+      // Brighter start, darker end
+      grad.addColorStop(0, `rgba(${r+30}, ${g+30}, ${b+30}, 1)`);
+      grad.addColorStop(1, `rgba(${r-30}, ${g-30}, ${b-30}, 1)`);
+
+      ctx.fillStyle = grad;
+      roundRect(ctx, 0, 0, w, h, 20);
+      ctx.fill();
+
+      // Subtle border
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+      ctx.lineWidth = 4;
+      ctx.shadowColor = 'rgba(0,0,0,0.3)';
+      ctx.shadowBlur = 6;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+      roundRect(ctx, 0, 0, w, h, 20);
+      ctx.stroke();
+
+      // Text
+      ctx.shadowColor = 'rgba(0,0,0,0.4)';
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetX = 1;
+      ctx.shadowOffsetY = 1;
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = 'bold 32px "Open Sans", sans-serif';
+      ctx.fillText(label, w/2, h/2);
+
+      return new THREE.CanvasTexture(canvas);
+    }
+
+    function roundRect(ctx, x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    }
+
+    // Stone path (plane + texture)
+    function createStonePath() {
+      const loader = new THREE.TextureLoader();
+      const stoneTex = loader.load('stone_floor.jpg');
+      const stoneNorm = loader.load('stone_floor_normal.jpg');
+      stoneTex.wrapS = stoneTex.wrapT = THREE.RepeatWrapping;
+      stoneNorm.wrapS = stoneNorm.wrapT = THREE.RepeatWrapping;
+      stoneTex.repeat.set(2, 50);
+      stoneNorm.repeat.set(2, 50);
+
+      const geo = new THREE.PlaneGeometry(3, 300);
+      const mat = new THREE.MeshStandardMaterial({
+        map: stoneTex,
+        normalMap: stoneNorm,
+        roughness: 0.8,
+        metalness: 0
+      });
+      const plane = new THREE.Mesh(geo, mat);
+      plane.rotation.x = -Math.PI / 2;
+      plane.receiveShadow = true;
+      scene.add(plane);
+    }
+
+    // Lanterns creation
+    function createLanterns() {
+      for (let i = 0; i < lanternCount; i++) {
+        const ln = createLanternMesh();
+        ln.position.set(
+          (Math.random()-0.5)*20,
+          Math.random()*10,
+          (Math.random()-0.5)*-200
+        );
+        scene.add(ln);
+        lanterns.push(ln);
+      }
+    }
+
+    function createLanternMesh() {
+      const group = new THREE.Group();
+
       const bodyGeo = new THREE.CylinderGeometry(0.4, 0.3, 0.8, 16, 1, true);
       const bodyMat = new THREE.MeshPhongMaterial({
         color: 0xfffaf0,
@@ -322,9 +319,8 @@
         side: THREE.DoubleSide
       });
       const body = new THREE.Mesh(bodyGeo, bodyMat);
-      lanternGroup.add(body);
+      group.add(body);
 
-      // 上リング
       const ringGeoTop = new THREE.TorusGeometry(0.4, 0.02, 8, 24);
       const ringMat = new THREE.MeshPhongMaterial({
         color: 0x8b4513,
@@ -333,22 +329,19 @@
       });
       const topRing = new THREE.Mesh(ringGeoTop, ringMat);
       topRing.position.y = 0.4;
-      lanternGroup.add(topRing);
+      group.add(topRing);
 
-      // 下リング
       const ringGeoBtm = new THREE.TorusGeometry(0.3, 0.02, 8, 24);
-      const bottomRing = new THREE.Mesh(ringGeoBtm, ringMat);
-      bottomRing.position.y = -0.4;
-      lanternGroup.add(bottomRing);
+      const btmRing = new THREE.Mesh(ringGeoBtm, ringMat);
+      btmRing.position.y = -0.4;
+      group.add(btmRing);
 
-      // 燃料部
       const fuelGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.1, 8);
       const fuelMat = new THREE.MeshPhongMaterial({ color: 0xd2691e });
       const fuel = new THREE.Mesh(fuelGeo, fuelMat);
       fuel.position.y = -0.45;
-      lanternGroup.add(fuel);
+      group.add(fuel);
 
-      // 火
       const fireGeo = new THREE.SphereGeometry(0.15, 8, 8);
       const fireMat = new THREE.MeshPhongMaterial({
         color: 0xff4500,
@@ -359,98 +352,53 @@
       });
       const fire = new THREE.Mesh(fireGeo, fireMat);
       fire.position.y = -0.35;
-      lanternGroup.add(fire);
+      group.add(fire);
 
-      // 光源
-      const light = new THREE.PointLight(0xff6b1a, 1, 3);
-      light.position.y = -0.35;
-      lanternGroup.add(light);
+      const fireLight = new THREE.PointLight(0xff6b1a, 1, 3);
+      fireLight.position.y = -0.35;
+      group.add(fireLight);
 
-      // 支柱4本
+      // 4 supports
       for (let i = 0; i < 4; i++) {
-        const supportGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.8, 4);
-        const support = new THREE.Mesh(supportGeo, ringMat);
-        const angle = (Math.PI * 2 * i) / 4;
-        support.position.set(
-          Math.cos(angle)*0.35,
-          0,
-          Math.sin(angle)*0.35
-        );
-        lanternGroup.add(support);
+        const supGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.8, 4);
+        const support = new THREE.Mesh(supGeo, ringMat);
+        const angle = (Math.PI*2*i)/4;
+        support.position.set(Math.cos(angle)*0.35, 0, Math.sin(angle)*0.35);
+        group.add(support);
       }
 
-      // 動きデータ
-      lanternGroup.userData.velocity = {
-        y: Math.random()*0.02 + 0.01,
-        x: Math.random()*0.005 - 0.0025,
-        z: Math.random()*0.005 - 0.0025
+      // Simple float
+      group.userData.velocity = {
+        x: (Math.random()*0.02 - 0.01),
+        y: (Math.random()*0.01 + 0.005),
+        z: (Math.random()*0.02 - 0.01)
       };
-      lanternGroup.userData.swing = {
-        x: Math.random()*Math.PI*2,
-        z: Math.random()*Math.PI*2,
-        speedX: 0.01 + Math.random()*0.01,
-        speedZ: 0.01 + Math.random()*0.01,
-        amplitudeX: 0.05,
-        amplitudeZ: 0.05
-      };
-
-      return lanternGroup;
+      return group;
     }
 
-    /******************************************************
-     * アニメーションループ
-     ******************************************************/
     function animate() {
       requestAnimationFrame(animate);
 
-      // カメラの前進 (鳥居トンネル無限ループ)
+      // Camera moves forward
       camera.position.z -= speed;
+
+      // Torii infinite loop
       toriiArray.forEach(torii => {
         if (torii.position.z - camera.position.z > 10) {
           torii.position.z -= reuseDistance;
         }
       });
 
-      // ランタンの浮遊
+      // Lanterns float
       lanterns.forEach(ln => {
-        ln.position.y += ln.userData.velocity.y;
         ln.position.x += ln.userData.velocity.x;
+        ln.position.y += ln.userData.velocity.y;
         ln.position.z += ln.userData.velocity.z;
 
-        // 揺れ
-        ln.userData.swing.x += ln.userData.swing.speedX;
-        ln.userData.swing.z += ln.userData.swing.speedZ;
-        ln.rotation.x = Math.sin(ln.userData.swing.x)*ln.userData.swing.amplitudeX;
-        ln.rotation.z = Math.sin(ln.userData.swing.z)*ln.userData.swing.amplitudeZ;
-
-        // 高さが一定超えたらリセット
-        if (ln.position.y > 60) {
-          ln.position.set(
-            Math.random() * 60 - 30,
-            -10,
-            Math.random() * -200 + 10
-          );
+        if (ln.position.y > 30) {
+          ln.position.y = 0;
         }
       });
-
-      // 流れ星の更新
-      const posArr = meteorPoints.geometry.attributes.position.array;
-      for (let i = 0; i < meteorCount; i++) {
-        posArr[i*3+0] += meteorVelocities[i].x;
-        posArr[i*3+1] += meteorVelocities[i].y;
-        posArr[i*3+2] += meteorVelocities[i].z;
-
-        if (posArr[i*3+1] < -5) {
-          posArr[i*3+0] = (Math.random()-0.5)*200;
-          posArr[i*3+1] = Math.random()*30 + 10;
-          posArr[i*3+2] = (Math.random()-0.5)*200;
-
-          meteorVelocities[i].x = (Math.random() - 0.5)*0.2;
-          meteorVelocities[i].y = -(Math.random()*0.05 + 0.02);
-          meteorVelocities[i].z = (Math.random() - 0.5)*0.2;
-        }
-      }
-      meteorPoints.geometry.attributes.position.needsUpdate = true;
 
       renderer.render(scene, camera);
     }
