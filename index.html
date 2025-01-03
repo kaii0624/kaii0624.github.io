@@ -3,13 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Torii Tunnel + Stone Path + Large Lantern + Shooting Star + Video Sphere BG</title>
-  <!-- Google Fonts 例: Montserrat を利用 -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
-    rel="stylesheet"
-  />
   <style>
     /* 全画面表示 */
     html, body {
@@ -17,8 +10,6 @@
       width: 100%; height: 100%;
       overflow: hidden;
       background-color: #000;
-      font-family: 'Montserrat', sans-serif;
-      color: #fff;
     }
     #bg-canvas {
       position: absolute;
@@ -26,459 +17,389 @@
       width: 100%; height: 100%;
       display: block;
     }
-    /* ヘッダー、メイン、フッターは最前面に */
+    /* 最前面のUI例 (必要に応じてCSSを加えてください) */
     header, main, footer {
       position: relative;
       z-index: 9999;
+      color: #fff;
+      font-family: sans-serif;
     }
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.2rem 2rem;
+      padding: 1rem 2rem;
       background: rgba(0,0,0,0.2);
     }
-    header h1 {
-      margin: 0; font-size: 1.2rem; font-weight: 700; letter-spacing: 0.1em;
-    }
-    nav ul {
-      list-style: none; display: flex; gap: 1.5rem; margin: 0; padding: 0;
-    }
-    nav a {
-      color: #fff; text-decoration: none; font-weight: 500; transition: opacity 0.3s;
-    }
-    nav a:hover { opacity: 0.7; }
-
     .hero {
       position: absolute;
-      top: 50%; left: 50%; transform: translate(-50%, -50%);
-      width: 90%; max-width: 800px; text-align: center;
-    }
-    .hero h2 {
-      font-size: 2.4rem; margin-bottom: 0.8rem; font-weight: 700;
-    }
-    .hero p {
-      font-size: 1.1rem; margin-bottom: 1.2rem; line-height: 1.6; color: #eee;
-    }
-    .hero a.cta {
-      display: inline-block; padding: 0.8rem 1.6rem; border-radius: 4px;
-      background: #fff; color: #000; font-weight: 700; text-decoration: none;
-      transition: background 0.3s, color 0.3s;
-    }
-    .hero a.cta:hover {
-      background: #000; color: #fff;
-    }
-
-    main {
-      max-width: 1000px; margin: 80vh auto 0; padding: 4rem 2rem 6rem;
-    }
-    section { margin-bottom: 4rem; }
-    section h3 {
-      font-size: 1.8rem; margin-bottom: 1rem; font-weight: 700;
-    }
-    section p {
-      font-size: 1rem; line-height: 1.6; color: #ddd; max-width: 800px;
-    }
-    footer {
-      text-align: center; padding: 2rem 1rem; background: rgba(0, 0, 0, 0.4);
-    }
-    footer p {
-      font-size: 0.9rem; color: #aaa;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      max-width: 600px;
     }
   </style>
 </head>
 <body>
 
-  <!-- ヘッダー -->
-  <header>
-    <h1>My Portfolio</h1>
-    <nav>
-      <ul>
-        <li><a href="#hero">Home</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="#works">Works</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
+<header>
+  <h1>My Portfolio</h1>
+</header>
 
-  <!-- ヒーローセクション -->
-  <div class="hero" id="hero">
-    <h2>Modern & Stylish Portfolio</h2>
-    <p>
-      Welcome to my personal space. I’m a web developer, designer, and creative technologist.
-      Explore my works below and let’s create something amazing together.
-    </p>
-    <a href="#works" class="cta">View My Works</a>
-  </div>
+<div class="hero">
+  <h2>Welcome!</h2>
+  <p>Video BG is back to better quality, plus bigger Lanterns.</p>
+</div>
 
-  <!-- メインコンテンツ -->
-  <main>
-    <section id="about">
-      <h3>About Me</h3>
-      <p>
-        I am a Tokyo-based full-stack developer with a passion for crafting seamless user
-        experiences and visually stunning designs. I specialize in modern JavaScript frameworks,
-        responsive design, and creative coding with tools like Three.js.
-      </p>
-    </section>
+<main>
+  <!-- コンテンツ例 -->
+</main>
 
-    <section id="works">
-      <h3>My Works</h3>
-      <p>
-        Here you can showcase your project portfolio, linking to specific case studies or code
-        repositories. Consider including screenshots or embedded videos for a dynamic presentation.
-      </p>
-    </section>
+<footer>
+  <!-- フッター例 -->
+</footer>
 
-    <section id="contact">
-      <h3>Contact</h3>
-      <p>
-        Interested in collaborating or just want to say hello?
-        Feel free to reach out via email at <strong>youremail@example.com</strong> or 
-        connect with me on <strong>LinkedIn</strong>, <strong>GitHub</strong>, or <strong>Twitter</strong>.
-      </p>
-    </section>
-  </main>
+<!-- Three.js -->
+<canvas id="bg-canvas"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+<script>
+/******************************************************
+ * シーン & カメラ & レンダラー
+ ******************************************************/
+const canvas = document.getElementById('bg-canvas');
+const scene = new THREE.Scene();
 
-  <!-- フッター -->
-  <footer>
-    <p>&copy; 2025 My Portfolio. All Rights Reserved.</p>
-  </footer>
+const camera = new THREE.PerspectiveCamera(
+  70,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
+camera.position.set(0, 1.5, 5);
 
-  <!-- Three.js背景 (球体の内側に動画を貼り、大きなランタン) -->
-  <canvas id="bg-canvas"></canvas>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
-  <script>
-    /******************************************************
-     * シーン & カメラ & レンダラー
-     ******************************************************/
-    const canvas = document.getElementById('bg-canvas');
-    const scene = new THREE.Scene();
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
 
-    const camera = new THREE.PerspectiveCamera(
-      70,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000
-    );
-    camera.position.set(0, 1.5, 5);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
 
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+/******************************************************
+ * 1) 背景用の球体 & 動画テクスチャ (MeshBasicMaterial)
+ *    -> ライトの影響を受けず、動画本来の画質を反映
+ ******************************************************/
+const video = document.createElement('video');
+video.src = 'Serene_Starlit_Lake.mp4';  // 同フォルダ内にあると仮定
+video.loop = true;
+video.muted = true;
+video.playsInline = true;
+video.autoplay = true;
+video.play().catch(err => console.warn('Video play error:', err));
 
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
+const videoTexture = new THREE.VideoTexture(video);
+// フィルタ設定(必要に応じて)
+videoTexture.minFilter = THREE.LinearFilter;
+videoTexture.magFilter = THREE.LinearFilter;
 
-    /******************************************************
-     * 1) 背景用の球体を作成し、その内側に動画を貼る
-     ******************************************************/
-    const video = document.createElement('video');
-    video.src = 'Serene_Starlit_Lake.mp4'; // 同フォルダに配置
-    video.loop = true;
-    video.muted = true;
-    video.playsInline = true;
-    video.autoplay = true;
-    video.play();
+const videoMaterial = new THREE.MeshBasicMaterial({
+  map: videoTexture,
+  side: THREE.BackSide
+});
 
-    const videoTexture = new THREE.VideoTexture(video);
-    const videoMaterial = new THREE.MeshBasicMaterial({
-      map: videoTexture,
-      side: THREE.BackSide
-    });
+const sphereGeo = new THREE.SphereGeometry(500, 32, 32);
+const sphereMesh = new THREE.Mesh(sphereGeo, videoMaterial);
+// 必要なら回転
+sphereMesh.rotation.y = 0; 
+scene.add(sphereMesh);
 
-    const sphereGeo = new THREE.SphereGeometry(500, 32, 32);
-    const sphereMesh = new THREE.Mesh(sphereGeo, videoMaterial);
-    sphereMesh.rotation.y = Math.PI; // 必要に応じて調整
-    scene.add(sphereMesh);
+/******************************************************
+ * 2) ライティング (最小限)
+ ******************************************************/
+// 環境光
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+scene.add(ambientLight);
 
-    /******************************************************
-     * 2) ライティング
-     ******************************************************/
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
-    scene.add(ambientLight);
+// ディレクショナルライト (月光イメージ)
+const moonLight = new THREE.DirectionalLight(0xffffff, 0.4);
+moonLight.position.set(10, 20, 10);
+moonLight.castShadow = true;
+scene.add(moonLight);
 
-    const moonLight = new THREE.DirectionalLight(0xCCD7FF, 0.3);
-    moonLight.position.set(10, 20, 10);
-    moonLight.castShadow = true;
-    scene.add(moonLight);
+/******************************************************
+ * 3) 石畳
+ ******************************************************/
+const textureLoader = new THREE.TextureLoader();
+const stoneTexture = textureLoader.load('stone_floor.jpg');
+const stoneNormal = textureLoader.load('stone_floor_normal.jpg');
 
-    /******************************************************
-     * 3) 石畳
-     ******************************************************/
-    const textureLoader = new THREE.TextureLoader();
-    const stoneTexture = textureLoader.load('stone_floor.jpg');
-    const stoneNormal = textureLoader.load('stone_floor_normal.jpg');
-    stoneTexture.wrapS = stoneTexture.wrapT = THREE.RepeatWrapping;
-    stoneNormal.wrapS = stoneNormal.wrapT = THREE.RepeatWrapping;
-    stoneTexture.repeat.set(2, 50);
-    stoneNormal.repeat.set(2, 50);
+stoneTexture.wrapS = stoneTexture.wrapT = THREE.RepeatWrapping;
+stoneNormal.wrapS = stoneNormal.wrapT = THREE.RepeatWrapping;
+stoneTexture.repeat.set(2, 50);
+stoneNormal.repeat.set(2, 50);
 
-    const stoneGeo = new THREE.PlaneGeometry(3, 300);
-    const stoneMat = new THREE.MeshStandardMaterial({
-      map: stoneTexture,
-      normalMap: stoneNormal,
-      roughness: 0.8,
-      metalness: 0
-    });
-    const stonePlane = new THREE.Mesh(stoneGeo, stoneMat);
-    stonePlane.rotation.x = -Math.PI / 2;
-    stonePlane.receiveShadow = true;
-    scene.add(stonePlane);
+const stoneGeo = new THREE.PlaneGeometry(3, 300);
+const stoneMat = new THREE.MeshStandardMaterial({
+  map: stoneTexture,
+  normalMap: stoneNormal,
+  roughness: 0.8,
+  metalness: 0
+});
+const stonePlane = new THREE.Mesh(stoneGeo, stoneMat);
+stonePlane.rotation.x = -Math.PI / 2;
+stonePlane.receiveShadow = true;
+scene.add(stonePlane);
 
-    /******************************************************
-     * 4) 鳥居トンネル
-     ******************************************************/
-    const toriiCount = 50;
-    const toriiSpacing = 3;
-    const toriiArray = [];
+/******************************************************
+ * 4) 鳥居トンネル
+ ******************************************************/
+const toriiCount = 50;
+const toriiSpacing = 3;
+const toriiArray = [];
 
-    function createTorii() {
-      const toriiGroup = new THREE.Group();
+function createTorii() {
+  const toriiGroup = new THREE.Group();
 
-      const pillarGeo = new THREE.BoxGeometry(0.1, 2, 0.1);
-      const pillarMat = new THREE.MeshPhongMaterial({ color: 0xcc0033 });
+  // シンプルに見せる例 (PhongMaterial)
+  const pillarMat = new THREE.MeshPhongMaterial({ color: 0xcc0033 });
 
-      const pillarLeft = new THREE.Mesh(pillarGeo, pillarMat);
-      pillarLeft.position.set(-0.5, 1, 0);
-      pillarLeft.castShadow = true;
-      toriiGroup.add(pillarLeft);
+  const pillarGeo = new THREE.BoxGeometry(0.1, 2, 0.1);
+  const pillarLeft = new THREE.Mesh(pillarGeo, pillarMat);
+  pillarLeft.position.set(-0.5, 1, 0);
+  pillarLeft.castShadow = true;
+  toriiGroup.add(pillarLeft);
 
-      const pillarRight = new THREE.Mesh(pillarGeo, pillarMat);
-      pillarRight.position.set(0.5, 1, 0);
-      pillarRight.castShadow = true;
-      toriiGroup.add(pillarRight);
+  const pillarRight = new THREE.Mesh(pillarGeo, pillarMat);
+  pillarRight.position.set(0.5, 1, 0);
+  pillarRight.castShadow = true;
+  toriiGroup.add(pillarRight);
 
-      const crossbarGeo = new THREE.BoxGeometry(1.4, 0.1, 0.3);
-      const crossbar = new THREE.Mesh(crossbarGeo, pillarMat);
-      crossbar.position.set(0, 2, 0);
-      crossbar.castShadow = true;
-      toriiGroup.add(crossbar);
+  const crossbarGeo = new THREE.BoxGeometry(1.4, 0.1, 0.3);
+  const crossbar = new THREE.Mesh(crossbarGeo, pillarMat);
+  crossbar.position.set(0, 2, 0);
+  crossbar.castShadow = true;
+  toriiGroup.add(crossbar);
 
-      const topbarGeo = new THREE.BoxGeometry(1.6, 0.05, 0.2);
-      const topbar = new THREE.Mesh(topbarGeo, pillarMat);
-      topbar.position.set(0, 2.1, 0);
-      topbar.rotation.z = 0.02;
-      topbar.castShadow = true;
-      toriiGroup.add(topbar);
+  const topbarGeo = new THREE.BoxGeometry(1.6, 0.05, 0.2);
+  const topbar = new THREE.Mesh(topbarGeo, pillarMat);
+  topbar.position.set(0, 2.1, 0);
+  topbar.rotation.z = 0.02;
+  topbar.castShadow = true;
+  toriiGroup.add(topbar);
 
-      return toriiGroup;
+  return toriiGroup;
+}
+for (let i = 0; i < toriiCount; i++) {
+  const torii = createTorii();
+  torii.position.z = -i * toriiSpacing;
+  scene.add(torii);
+  toriiArray.push(torii);
+}
+
+/******************************************************
+ * 5) 大きいコムローイ(ランタン)
+ ******************************************************/
+function createLantern() {
+  const lanternGroup = new THREE.Group();
+
+  // （以前投稿した "大きい" ジオメトリ）
+  const bodyGeometry = new THREE.CylinderGeometry(0.6, 0.45, 1.2, 16, 1, true);
+  const bodyMaterial = new THREE.MeshPhongMaterial({
+    color: 0xfffaf0,
+    emissive: 0xff4400,
+    emissiveIntensity: 0.3,
+    transparent: true,
+    opacity: 0.9,
+    side: THREE.DoubleSide
+  });
+  const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+
+  // 上部リング
+  const ringGeoTop = new THREE.TorusGeometry(0.6, 0.03, 8, 24);
+  const ringMat = new THREE.MeshPhongMaterial({ 
+    color: 0x8b4513, 
+    emissive: 0x3d2b1f, 
+    emissiveIntensity: 0.2 
+  });
+  const topRing = new THREE.Mesh(ringGeoTop, ringMat);
+  topRing.position.y = 0.6;
+
+  // 下部リング
+  const ringGeoBottom = new THREE.TorusGeometry(0.45, 0.03, 8, 24);
+  const bottomRing = new THREE.Mesh(ringGeoBottom, ringMat);
+  bottomRing.position.y = -0.6;
+
+  // 燃料部
+  const fuelGeo = new THREE.CylinderGeometry(0.075, 0.075, 0.15, 8);
+  const fuelMat = new THREE.MeshPhongMaterial({ color: 0xd2691e });
+  const fuel = new THREE.Mesh(fuelGeo, fuelMat);
+  fuel.position.y = -0.65;
+
+  // 火
+  const fireGeo = new THREE.SphereGeometry(0.22, 8, 8);
+  const fireMat = new THREE.MeshPhongMaterial({
+    color: 0xff4500,
+    emissive: 0xff4500,
+    emissiveIntensity: 1,
+    transparent: true,
+    opacity: 0.7
+  });
+  const fire = new THREE.Mesh(fireGeo, fireMat);
+  fire.position.y = -0.55;
+
+  // 光源 (ランタン内部)
+  const fireLight = new THREE.PointLight(0xff6b1a, 1, 3);
+  fireLight.position.set(0, -0.55, 0);
+
+  // 縦支柱4本
+  for (let i = 0; i < 4; i++) {
+    const supportGeo = new THREE.CylinderGeometry(0.015, 0.015, 1.2, 4);
+    const support = new THREE.Mesh(supportGeo, ringMat);
+    const angle = (Math.PI * 2 * i) / 4;
+    support.position.set(Math.cos(angle)*0.5, 0, Math.sin(angle)*0.5);
+    lanternGroup.add(support);
+  }
+
+  lanternGroup.add(body, topRing, bottomRing, fuel, fire, fireLight);
+  return lanternGroup;
+}
+
+const lanterns = [];
+const lanternCount = 50;
+for (let i = 0; i < lanternCount; i++) {
+  const lantern = createLantern();
+  lantern.position.set(
+    (Math.random() - 0.5) * 60, // X
+    Math.random() * 20,        // Y
+    Math.random() * -200 + 10  // Z
+  );
+  lantern.rotation.x = (Math.random() - 0.5)*0.2;
+  lantern.rotation.z = (Math.random() - 0.5)*0.2;
+
+  lantern.userData.velocity = {
+    y: Math.random()*0.02 + 0.01,
+    x: Math.random()*0.005 - 0.0025,
+    z: Math.random()*0.005 - 0.0025
+  };
+  lantern.userData.swing = {
+    x: Math.random()*Math.PI*2,
+    z: Math.random()*Math.PI*2,
+    speedX: 0.01 + Math.random()*0.01,
+    speedZ: 0.01 + Math.random()*0.01,
+    amplitudeX: 0.05,
+    amplitudeZ: 0.05
+  };
+  lanterns.push(lantern);
+  scene.add(lantern);
+}
+
+/******************************************************
+ * 6) 流れ星(パーティクル)
+ ******************************************************/
+const meteorCount = 30;
+const meteorPositions = new Float32Array(meteorCount * 3);
+const meteorVelocities = [];
+for (let i = 0; i < meteorCount; i++) {
+  meteorPositions[i*3+0] = (Math.random() - 0.5)*200;
+  meteorPositions[i*3+1] = Math.random()*30 + 10;
+  meteorPositions[i*3+2] = (Math.random() - 0.5)*200;
+
+  meteorVelocities.push({
+    x: (Math.random() - 0.5)*0.2,
+    y: -(Math.random()*0.05 + 0.02),
+    z: (Math.random() - 0.5)*0.2
+  });
+}
+const meteorGeo = new THREE.BufferGeometry();
+meteorGeo.setAttribute('position', new THREE.BufferAttribute(meteorPositions, 3));
+
+const meteorMat = new THREE.PointsMaterial({
+  color: 0xffffff, 
+  size: 0.5, 
+  transparent: true
+});
+const meteorPoints = new THREE.Points(meteorGeo, meteorMat);
+scene.add(meteorPoints);
+
+/******************************************************
+ * 7) アニメーション
+ ******************************************************/
+let speed = 0.03;    
+const reuseDistance = toriiSpacing * toriiCount;
+
+function updateFire(lantern) {
+  const fire = lantern.children.find(obj =>
+    obj.material && obj.material.emissive && obj.material.emissive.getHex() === 0xff4500
+  );
+  if (fire) {
+    fire.scale.x = 1 + Math.sin(performance.now()*0.01)*0.1;
+    fire.scale.y = 1 + Math.sin(performance.now()*0.015)*0.1;
+    fire.scale.z = 1 + Math.sin(performance.now()*0.012)*0.1;
+    fire.material.emissiveIntensity = 0.8 + Math.sin(performance.now()*0.01)*0.2;
+  }
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  // 鳥居トンネル無限ループ
+  camera.position.z -= speed;
+  toriiArray.forEach(torii => {
+    if (torii.position.z - camera.position.z > 10) {
+      torii.position.z -= reuseDistance;
     }
+  });
 
-    for (let i = 0; i < toriiCount; i++) {
-      const torii = createTorii();
-      torii.position.z = -i * toriiSpacing;
-      scene.add(torii);
-      toriiArray.push(torii);
-    }
+  // ランタン浮遊
+  lanterns.forEach(lantern => {
+    lantern.position.y += lantern.userData.velocity.y;
+    lantern.position.x += lantern.userData.velocity.x;
+    lantern.position.z += lantern.userData.velocity.z;
 
-    /******************************************************
-     * 5) 大きいコムローイ(ランタン)
-     *    ※ サイズを1.5~2倍ほど拡大
-     ******************************************************/
-    function createLantern() {
-      const lanternGroup = new THREE.Group();
+    const swing = lantern.userData.swing;
+    swing.x += swing.speedX;
+    swing.z += swing.speedZ;
+    lantern.rotation.x = Math.sin(swing.x)*swing.amplitudeX;
+    lantern.rotation.z = Math.sin(swing.z)*swing.amplitudeZ;
 
-      // ランタン本体 (上直径: 0.6, 下直径: 0.45, 高さ: 1.2)
-      const bodyGeometry = new THREE.CylinderGeometry(0.6, 0.45, 1.2, 16, 1, true);
-      const bodyMaterial = new THREE.MeshPhongMaterial({
-        color: 0xfffaf0,
-        emissive: 0xff4400,
-        emissiveIntensity: 0.3,
-        transparent: true,
-        opacity: 0.9,
-        side: THREE.DoubleSide
-      });
-      const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    updateFire(lantern);
 
-      // 上部リング (torus半径0.6、太さ0.03)
-      const ringGeoTop = new THREE.TorusGeometry(0.6, 0.03, 8, 24);
-      const ringMat = new THREE.MeshPhongMaterial({ 
-        color: 0x8b4513, 
-        emissive: 0x3d2b1f, 
-        emissiveIntensity: 0.2 
-      });
-      const topRing = new THREE.Mesh(ringGeoTop, ringMat);
-      topRing.position.y = 0.6;
-
-      // 下部リング (torus半径0.45、太さ0.03)
-      const ringGeoBottom = new THREE.TorusGeometry(0.45, 0.03, 8, 24);
-      const bottomRing = new THREE.Mesh(ringGeoBottom, ringMat);
-      bottomRing.position.y = -0.6;
-
-      // 燃料部
-      const fuelGeo = new THREE.CylinderGeometry(0.075, 0.075, 0.15, 8);
-      const fuelMat = new THREE.MeshPhongMaterial({ color: 0xd2691e });
-      const fuel = new THREE.Mesh(fuelGeo, fuelMat);
-      fuel.position.y = -0.65;
-
-      // 火 (sphere半径0.22)
-      const fireGeo = new THREE.SphereGeometry(0.22, 8, 8);
-      const fireMat = new THREE.MeshPhongMaterial({
-        color: 0xff4500,
-        emissive: 0xff4500,
-        emissiveIntensity: 1,
-        transparent: true,
-        opacity: 0.7
-      });
-      const fire = new THREE.Mesh(fireGeo, fireMat);
-      fire.position.y = -0.55;
-
-      // 光源
-      const fireLight = new THREE.PointLight(0xff6b1a, 1, 3);
-      fireLight.position.set(0, -0.55, 0);
-
-      // 支柱4本 (長さ1.2)
-      for (let i = 0; i < 4; i++) {
-        const supportGeo = new THREE.CylinderGeometry(0.015, 0.015, 1.2, 4);
-        const support = new THREE.Mesh(supportGeo, ringMat);
-        const angle = (Math.PI * 2 * i) / 4;
-        support.position.set(Math.cos(angle)*0.5, 0, Math.sin(angle)*0.5);
-        lanternGroup.add(support);
-      }
-
-      lanternGroup.add(body, topRing, bottomRing, fuel, fire, fireLight);
-      return lanternGroup;
-    }
-
-    const lanterns = [];
-    const lanternCount = 50;
-    for (let i = 0; i < lanternCount; i++) {
-      const lantern = createLantern();
+    // 上に行きすぎたらリセット
+    if (lantern.position.y > 60) {
       lantern.position.set(
-        Math.random() * 60 - 30,
-        Math.random() * 20,
-        Math.random() * -200 + 10
+        (Math.random() - 0.5)*60,
+        -10,
+        Math.random()*-200 + 10
       );
-      lantern.rotation.x = (Math.random() - 0.5)*0.2;
-      lantern.rotation.z = (Math.random() - 0.5)*0.2;
-
-      lantern.userData.velocity = {
-        y: Math.random()*0.02 + 0.01,
-        x: Math.random()*0.005 - 0.0025,
-        z: Math.random()*0.005 - 0.0025
-      };
-      lantern.userData.swing = {
-        x: Math.random()*Math.PI*2,
-        z: Math.random()*Math.PI*2,
-        speedX: 0.01 + Math.random()*0.01,
-        speedZ: 0.01 + Math.random()*0.01,
-        amplitudeX: 0.05,
-        amplitudeZ: 0.05
-      };
-      lanterns.push(lantern);
-      scene.add(lantern);
     }
+  });
 
-    /******************************************************
-     * 6) 流れ星(パーティクル)
-     ******************************************************/
-    const meteorCount = 30;
-    const meteorPositions = new Float32Array(meteorCount * 3);
-    const meteorVelocities = [];
-    for (let i = 0; i < meteorCount; i++) {
-      meteorPositions[i*3+0] = (Math.random() - 0.5)*200;
-      meteorPositions[i*3+1] = Math.random()*30 + 10;
-      meteorPositions[i*3+2] = (Math.random() - 0.5)*200;
+  // 流れ星(パーティクル) 更新
+  const posArr = meteorGeo.attributes.position.array;
+  for (let i = 0; i < meteorCount; i++) {
+    posArr[i*3+0] += meteorVelocities[i].x;
+    posArr[i*3+1] += meteorVelocities[i].y;
+    posArr[i*3+2] += meteorVelocities[i].z;
 
-      meteorVelocities.push({
-        x: (Math.random() - 0.5)*0.2,
-        y: -(Math.random()*0.05 + 0.02),
-        z: (Math.random() - 0.5)*0.2
-      });
+    if (posArr[i*3+1] < -5) {
+      posArr[i*3+0] = (Math.random()-0.5)*200;
+      posArr[i*3+1] = Math.random()*30 + 10;
+      posArr[i*3+2] = (Math.random()-0.5)*200;
+      meteorVelocities[i].x = (Math.random() - 0.5)*0.2;
+      meteorVelocities[i].y = -(Math.random()*0.05 + 0.02);
+      meteorVelocities[i].z = (Math.random() - 0.5)*0.2;
     }
-    const meteorGeo = new THREE.BufferGeometry();
-    meteorGeo.setAttribute('position', new THREE.BufferAttribute(meteorPositions, 3));
+  }
+  meteorGeo.attributes.position.needsUpdate = true;
 
-    const meteorMat = new THREE.PointsMaterial({
-      color: 0xffffff, size: 0.5, transparent: true
-    });
-    const meteorPoints = new THREE.Points(meteorGeo, meteorMat);
-    scene.add(meteorPoints);
-
-    /******************************************************
-     * 7) アニメーション
-     ******************************************************/
-    let speed = 0.03;    
-    const reuseDistance = toriiSpacing * toriiCount;
-
-    function updateFire(lantern) {
-      // ランタンの火を検索
-      const fire = lantern.children.find(obj =>
-        obj.material && obj.material.emissive && obj.material.emissive.getHex() === 0xff4500
-      );
-      if (fire) {
-        fire.scale.x = 1 + Math.sin(performance.now()*0.01)*0.1;
-        fire.scale.y = 1 + Math.sin(performance.now()*0.015)*0.1;
-        fire.scale.z = 1 + Math.sin(performance.now()*0.012)*0.1;
-        fire.material.emissiveIntensity = 0.8 + Math.sin(performance.now()*0.01)*0.2;
-      }
-    }
-
-    function animate() {
-      requestAnimationFrame(animate);
-
-      // 鳥居トンネル無限ループ
-      camera.position.z -= speed;
-      toriiArray.forEach(torii => {
-        if (torii.position.z - camera.position.z > 10) {
-          torii.position.z -= reuseDistance;
-        }
-      });
-
-      // ランタン浮遊
-      lanterns.forEach(lantern => {
-        lantern.position.y += lantern.userData.velocity.y;
-        lantern.position.x += lantern.userData.velocity.x;
-        lantern.position.z += lantern.userData.velocity.z;
-
-        const swing = lantern.userData.swing;
-        swing.x += swing.speedX;
-        swing.z += swing.speedZ;
-        lantern.rotation.x = Math.sin(swing.x)*swing.amplitudeX;
-        lantern.rotation.z = Math.sin(swing.z)*swing.amplitudeZ;
-
-        updateFire(lantern);
-
-        // 高さが一定以上でリセット
-        if (lantern.position.y > 60) {
-          lantern.position.set(
-            Math.random()*60 - 30,
-            -10,
-            Math.random()*-200 + 10
-          );
-        }
-      });
-
-      // 流れ星の更新
-      const posArr = meteorGeo.attributes.position.array;
-      for (let i = 0; i < meteorCount; i++) {
-        posArr[i*3+0] += meteorVelocities[i].x;
-        posArr[i*3+1] += meteorVelocities[i].y;
-        posArr[i*3+2] += meteorVelocities[i].z;
-
-        if (posArr[i*3+1] < -5) {
-          posArr[i*3+0] = (Math.random()-0.5)*200;
-          posArr[i*3+1] = Math.random()*30 + 10;
-          posArr[i*3+2] = (Math.random()-0.5)*200;
-
-          meteorVelocities[i].x = (Math.random() - 0.5)*0.2;
-          meteorVelocities[i].y = -(Math.random()*0.05 + 0.02);
-          meteorVelocities[i].z = (Math.random() - 0.5)*0.2;
-        }
-      }
-      meteorGeo.attributes.position.needsUpdate = true;
-
-      renderer.render(scene, camera);
-    }
-    animate();
-  </script>
+  renderer.render(scene, camera);
+}
+animate();
+</script>
 </body>
 </html>
