@@ -22,7 +22,9 @@
       padding: 1rem 2rem;
     }
     header h1 {
-      margin: 0; font-size: 1.4rem; font-weight: 700;
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 700;
     }
     main {
       max-width: 800px;
@@ -31,14 +33,29 @@
     }
     h2 {
       font-size: 1.8rem;
+      margin-top: 2rem;
       margin-bottom: 1rem;
       border-bottom: 2px solid #333;
       display: inline-block;
       padding-bottom: 0.3rem;
     }
+    h3 {
+      font-size: 1.4rem;
+      margin-top: 1.5rem;
+      margin-bottom: 1rem;
+    }
     p {
       line-height: 1.6;
       margin-bottom: 1rem;
+    }
+    ul {
+      margin-left: 1.5rem;
+      line-height: 1.8;
+      padding-left: 0;
+    }
+    li {
+      margin-bottom: 0.5rem;
+      list-style: disc;
     }
     footer {
       text-align: center;
@@ -55,6 +72,20 @@
     a:hover {
       opacity: 0.7;
     }
+    /* もし動画表示をよりレスポンシブにしたければ下記のようなラップ用スタイルを利用してください */
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 */
+      height: 0;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: none;
+    }
   </style>
 </head>
 <body>
@@ -64,11 +95,10 @@
   </header>
 
   <main>
-    <h2>AI Solutions & Local LLM Deployments</h2>
-    <p>
-      Here are a few notable projects I've worked on:
-    </p>
-    <ul style="margin-left:1.5rem; line-height:1.8;">
+    <!-- もともとの内容 -->
+    <h2>AI Solutions &amp; Local LLM Deployments</h2>
+    <p>Here are a few notable projects I've worked on:</p>
+    <ul>
       <li><strong>Generative Chatbot for E-commerce:</strong> Implemented a local LLM 
       that answers product queries seamlessly.</li>
       <li><strong>AI-Driven Customer Support:</strong> Created a knowledge base 
@@ -81,11 +111,90 @@
       while providing top-tier performance.
     </p>
 
+    <!-- ここから追加のポートフォリオ内容 -->
+    <!-- 研究 -->
+    <section>
+      <h2>研究</h2>
+      <h3>量子光学研究</h3>
+      <ul>
+        <li>
+          周波数上方変換を用いた通信波長帯単一光子の高時間分解検出  
+          <br>
+          <a href="https://confit.atlas.jp/guide/event-img/jsap2017a/5p-A414-3/public/pdf?type=in" target="_blank">論文PDF (confit.atlas.jp)</a>
+        </li>
+        <li>
+          単一光子レベルフォトンエコー検出に向けた周波数上方変換による通信波長帯パルスの高時間分解検出  
+          <br>
+          <a href="https://www.jstage.jst.go.jp/article/jsapmeeting/2018.2/0/2018.2_899/_pdf" target="_blank">論文PDF (jstage.jst.go.jp)</a>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ソフトウェア（ChatGPT以前） -->
+    <section>
+      <h2>ソフトウェア（ChatGPT以前）</h2>
+      <ul>
+        <li>動物を並べる（2018）</li>
+        <li>ボウラードSwiftアプリ（2019）</li>
+        <li>動物タワーバトル（2019）</li>
+        <li>リプライで回るルービックキューブ（2020）  
+          <br>
+          <a href="https://x.com/cube_reply" target="_blank">@cube_reply（Xへのリンク）</a>
+        </li>
+        <li>M2+Old Pochmann解法アプリ（2020）  
+          <div class="video-container">
+            <iframe 
+              src="https://www.youtube.com/embed/8Cs8jUL58kY" 
+              allowfullscreen>
+            </iframe>
+          </div>
+        </li>
+        <li>3×3×1探索アプリ（2020）  
+          <div class="video-container">
+            <iframe
+              src="https://www.youtube.com/embed/iBJGEd4cx7w"
+              allowfullscreen>
+            </iframe>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ソフトウェア（ChatGPT以後） -->
+    <section>
+      <h2>ソフトウェア（ChatGPT以後）</h2>
+      <p>（ここにChatGPT以後に作成したソフトウェアがあれば追記してください）</p>
+    </section>
+
+    <!-- 雑多な内容（ハードウェア・工作） -->
+    <section>
+      <h2>ハードウェア</h2>
+      <ul>
+        <li>フーリエ変換のシール</li>
+        <li>IoTとラズパイでラインからGoogle Homeを喋らせる</li>
+        <li>MESHと物理センサーでライトが付く</li>
+        <li>タッチで鍵が開く</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>工作</h2>
+      <ul>
+        <li>国旗のコースター、スマホケース、千年パズル、スイカと改札と切符</li>
+        <li>キューブの花が咲くペンたて、高校の図工で暗号の間取り、糸で浮くピエロ</li>
+        <li>部誌のアナ雪風</li>
+        <li>AviUtl</li>
+        <li>Cubase</li>
+      </ul>
+    </section>
+
+    <!-- 戻りリンク -->
     <p><a href="index2.html">&larr; Back to Index2</a></p>
+
   </main>
 
   <footer>
-    <p>&copy; 2025 AI & LLM Engineer</p>
+    <p>&copy; 2025 AI &amp; LLM Engineer</p>
   </footer>
 
 </body>
